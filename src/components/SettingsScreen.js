@@ -7,13 +7,18 @@ export default class SettingsScreen extends React.Component {
   };
 
   render() {
-    const { goBack } = this.props.navigation;
+    const { goBack, navigate } = this.props.navigation;
     return (
       <View style={styles.container}>
         <Text>Detta är Settings</Text>
         <Button
           title="Go back"
           onPress={() => goBack()}
+        />
+
+        <Button
+          title="Go to main"
+          onPress={() => navigate('Settings')}
         />
       </View>
     );
