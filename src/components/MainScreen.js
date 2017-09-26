@@ -4,7 +4,8 @@ import { Constants } from 'expo';
 
 import DocumentButton from './DocumentButton';
 import ContextMenu from './ContextMenu';
-
+import ListItem from './ListItem';
+import SectionHeader from './SectionHeader';
 
 export default class MainScreen extends React.Component {
   static navigationOptions = {
@@ -17,12 +18,13 @@ export default class MainScreen extends React.Component {
       <View style={styles.container}>
         <SectionList
           style={styles.list}
-          renderItem={({item}) => <View style={styles.listItem}><Text>{item.title}</Text></View>}
-          renderSectionHeader={({section}) => <View style={styles.listHeader}><Text>{section.key}</Text></View>}
+          contentContainerStyle={styles.listContentContainer}
+          renderItem={({item}) => <ListItem month={item.title}/>}
+          renderSectionHeader={({section}) => <SectionHeader title={section.title} />}
           sections = {[
-            {data: [{title: 'Title texaaaaaaaaaaaaaaat', key: 's1item1'},{title: 'Title text2', key: 's1item2'},{title: 'Title text3', key: 's1item3'}], key: 'section1'},
-            {data: [{title: 'Title text', key: 's2item1'},{title: 'Title text2', key: 's2item2'},{title: 'Title text3', key: 's2item3'}], key: 'section2'},
-            {data: [{title: 'Title text', key: 's3item1'},{title: 'Title text2', key: 's3item2'},{title: 'Title text3', key: 's3item3'}], key: 'section3'},
+            {data: [{title: 'Title text', key: 's1item1'},{title: 'Title text2', key: 's1item2'},{title: 'Title text3', key: 's1item3'}], title: 'August', key: 'section1'},
+            {data: [{title: 'Title text', key: 's2item1'},{title: 'Title text2', key: 's2item2'},{title: 'Title text3', key: 's2item3'}], title: 'September', key: 'section2'},
+            {data: [{title: 'Title text', key: 's3item1'},{title: 'Title text2', key: 's3item2'},{title: 'Title text3', key: 's3item3'}], title: 'October', key: 'section3'},
           ]}
         />
         <DocumentButton />
@@ -43,14 +45,8 @@ const styles = StyleSheet.create({
     flex: 1,
     alignSelf: 'stretch', 
   },
-  listHeader: {
-    backgroundColor: '#ff0000',
-    alignItems: 'center',
-    paddingTop: Constants.statusBarHeight
-  },
-  listItem: {
-    height: 100,
-    backgroundColor: '#00ff00',
-    alignItems: 'center',
+  listContentContainer: {
+    alignItems: 'center'    
   }
+  
 });
