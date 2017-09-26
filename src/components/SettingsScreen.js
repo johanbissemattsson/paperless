@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, Button } from 'react-native';
 
 export default class SettingsScreen extends React.Component {
   static navigationOptions = {
-    title: 'Settings Screen',
+    title: 'Settings',
   };
 
   render() {
