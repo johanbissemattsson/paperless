@@ -23,10 +23,6 @@ export default class MainScreen extends React.Component {
       <View style={styles.container}>
         <DocumentButton />
         <Text>Detta är main screen</Text>
-        <Button
-          title="Settings"
-          onPress={() => navigate('Settings')}
-        />
         {(Platform.OS === 'android') ?
           <ToolbarAndroid
             actions={[{title: 'Settings', show: 'never'},{title: 'Send feedback', show: 'never'},{title: 'Help', show: 'never'}]}
