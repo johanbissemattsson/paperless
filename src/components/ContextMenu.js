@@ -27,8 +27,8 @@ export default connect(mapStateToProps, mapDispatchToProps)(ContextMenu);
 
 const styles = StyleSheet.create({
   toolbar: {
-    height: 64,
-    width: 64,
+    height: 128,
+    width: 128,
     position: 'absolute',
     top: 0,
     right: 0,
