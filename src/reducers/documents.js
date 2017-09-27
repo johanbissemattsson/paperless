@@ -53,16 +53,16 @@ const addMonthAfter = (oldList) => {
   return newList;
 }
 
-const initialDocumentsState = {
+const initialDocumentsState = Map({
   isCameraActivated: true,
   data: tempListData,
   visibleMonths: initVisibleMonths(initialDate),
-};
+});
 
 export default documents = (state = initialDocumentsState, action) => {
   switch (action.type) {
     case 'loadDocuments':
-      return { ...state, isCameraActivated: false };
+      return { ...state, isCameraActivated: false }; //Måste göras immutable??
     case 'addMonthBefore':
       return { ...state, visibleMonths: addMonthBefore(state.visibleMonths)};
     case 'addMonthAfter':

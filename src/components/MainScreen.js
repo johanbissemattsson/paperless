@@ -1,8 +1,9 @@
 import React from 'react';
-import { StyleSheet, Text, View, Button, FlatList } from 'react-native';
+import { StyleSheet, Text, View, Button, FlatList, VirtualizedList } from 'react-native';
 import { Constants } from 'expo';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import { List, Map, toJS } from 'immutable';
 
 import DocumentButton from './DocumentButton';
 import ContextMenu from './ContextMenu';
@@ -15,21 +16,22 @@ class MainScreen extends React.Component {
   };
 
   componentDidMount() {
-    const { loadDocuments } = this.props;
-    loadDocuments();
+    //const { loadDocuments } = this.props;
+    //loadDocuments();
   }
   
   render() {  
     const { navigate } = this.props.navigation;
     const documents = this.props.documents;
-
+    
     return (
       <View style={styles.container}>
-        <FlatList
+        <FlatList 
           style={styles.list}
           contentContainerStyle={styles.listContentContainer}
-          data={documents.data}
-          renderItem={({item}) => <ListItem month={item.title}/>}
+          data={Map(documents).get('visibleMonths').toJS()}
+          renderItem={({item}) => <ListItem monthName={item.monthName}/>}
+          keyExtractor={(item, index) => {return item.key}}
           ItemSeparatorComponent={ListItemSeparator}
         />
         <DocumentButton />
