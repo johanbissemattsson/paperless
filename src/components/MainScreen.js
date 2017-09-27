@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, Button, FlatList, VirtualizedList } from 'react
 import { Constants } from 'expo';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { List, Map, toJS } from 'immutable';
+import { List, Map } from 'immutable';
 
 import DocumentButton from './DocumentButton';
 import ContextMenu from './ContextMenu';
@@ -29,9 +29,8 @@ class MainScreen extends React.Component {
         <FlatList 
           style={styles.list}
           contentContainerStyle={styles.listContentContainer}
-          data={Map(documents).get('visibleMonths').toJS()}
+          data={Map(documents).get('visibleMonths').toJS()} /*Convert this to virtualized list to skip tojs! */
           renderItem={({item}) => <ListItem monthName={item.monthName}/>}
-          keyExtractor={(item, index) => {return item.key}}
           ItemSeparatorComponent={ListItemSeparator}
         />
         <DocumentButton />
