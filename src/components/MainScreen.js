@@ -5,7 +5,7 @@ import { Constants } from 'expo';
 import DocumentButton from './DocumentButton';
 import ContextMenu from './ContextMenu';
 import ListItem from './ListItem';
-import SectionHeader from './SectionHeader';
+import ListItemSeparator from './ListItemSeparator';
 
 export default class MainScreen extends React.Component {
   static navigationOptions = {
@@ -20,8 +20,9 @@ export default class MainScreen extends React.Component {
           style={styles.list}
           contentContainerStyle={styles.listContentContainer}
           renderItem={({item}) => <ListItem month={item.title}/>}
+          ItemSeparatorComponent={ListItemSeparator}
           data = {
-            [{title: 'Title text', month:'111', documents:'', key: 's1item1'},{title: 'Title text2', month:'222', documents:'', key: 's1item2'},{title: 'Title text3',month:'111', documents: '', key: 's1item3'}]
+            [{title: 'Title text', month:'111', documents:'', key: 's1item1'},{title: 'Title textaaaa 2', month:'222', documents:'', key: 's1item2'},{title: 'Title text3',month:'111', documents: '', key: 's1item3'}]
           }
         />
         <DocumentButton />
