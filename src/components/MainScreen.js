@@ -1,29 +1,36 @@
 import React from 'react';
 import { StyleSheet, Text, View, Button, FlatList } from 'react-native';
 import { Constants } from 'expo';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 
 import DocumentButton from './DocumentButton';
 import ContextMenu from './ContextMenu';
 import ListItem from './ListItem';
 import ListItemSeparator from './ListItemSeparator';
 
-export default class MainScreen extends React.Component {
+class MainScreen extends React.Component {
   static navigationOptions = {
     title: 'Main Screen',
   };
+
+  componentDidMount() {
+    const { loadDocuments } = this.props;
+    loadDocuments();
+  }
   
-  render() {
+  render() {  
     const { navigate } = this.props.navigation;
+    const documents = this.props.documents;
+
     return (
       <View style={styles.container}>
         <FlatList
           style={styles.list}
           contentContainerStyle={styles.listContentContainer}
+          data={documents.data}
           renderItem={({item}) => <ListItem month={item.title}/>}
           ItemSeparatorComponent={ListItemSeparator}
-          data = {
-            [{title: 'Title text', month:'111', documents:'', key: 's1item1'},{title: 'Title textaaaa 2', month:'222', documents:'', key: 's1item2'},{title: 'Title text3',month:'111', documents: '', key: 's1item3'}]
-          }
         />
         <DocumentButton />
         <ContextMenu />
@@ -31,6 +38,18 @@ export default class MainScreen extends React.Component {
     );
   }
 }
+
+const mapStateToProps = state => ({
+  documents: state.documents,  
+});
+
+const mapDispatchToProps = dispatch => ({
+  loadDocuments: () => dispatch({ type: 'loadDocuments' }),
+  login: () => dispatch({ type: 'Login' })
+});
+
+
+export default connect(mapStateToProps, mapDispatchToProps)(MainScreen);
 
 const styles = StyleSheet.create({
   container: {
@@ -46,5 +65,5 @@ const styles = StyleSheet.create({
   listContentContainer: {
     alignItems: 'center'    
   }
-  
 });
+
