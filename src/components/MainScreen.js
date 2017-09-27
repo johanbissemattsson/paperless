@@ -3,7 +3,6 @@ import { StyleSheet, Text, View, Button, FlatList, VirtualizedList } from 'react
 import { Constants } from 'expo';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { List, Map } from 'immutable';
 
 import DocumentButton from './DocumentButton';
 import ContextMenu from './ContextMenu';
@@ -19,18 +18,34 @@ class MainScreen extends React.Component {
     //const { loadDocuments } = this.props;
     //loadDocuments();
   }
-  
+
+  /* Following is an working example of using VirtualizedList, FlatList however seems to use VirtualizedList as well */
+  /*
+    <VirtualizedList 
+      style={styles.list}
+      contentContainerStyle={styles.listContentContainer}
+      data={immutableData}
+      renderItem={({item}) => {console.log(item);return <ListItem hej={item.get('key')} monthName={item.get('monthName')}/>}}
+      getItem={(items, index) => immutableData.get(index)}
+      getItemCount={(items) => (items.size || 0)}
+      keyExtractor={(item, index) => String(index)}
+      ItemSeparatorComponent={ListItemSeparator}
+    />
+  */
+
   render() {  
     const { navigate } = this.props.navigation;
     const documents = this.props.documents;
+    const immutableDocumentsData = documents.get('visibleMonths');
     
     return (
       <View style={styles.container}>
         <FlatList 
           style={styles.list}
           contentContainerStyle={styles.listContentContainer}
-          data={Map(documents).get('visibleMonths').toJS()} /*Convert this to virtualized list to skip tojs! */
+          data={immutableDocumentsData}
           renderItem={({item}) => <ListItem monthName={item.monthName}/>}
+          keyExtractor={(item, index) => String(index)}
           ItemSeparatorComponent={ListItemSeparator}
         />
         <DocumentButton />

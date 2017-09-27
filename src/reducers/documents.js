@@ -24,21 +24,20 @@ const initMonth = (date) => {
 */
 
 const initMonth = (date) => {
-  return Map({
-    key: format(date, 'YYYYMM'),    
+  return {    
     moment: format(startOfMonth(date)),
     monthName: format(date, 'MMMM'),
     isLoading: true,
     data: null
-  });
+  };
 }
 
 const initVisibleMonths = (date) => {
-  return List([
+  return [
     initMonth(subMonths(date,1)),
     initMonth(date),
     initMonth(addMonths(date,1))
-  ]);
+  ];
 }
 
 const addMonthBefore = (oldList) => {
