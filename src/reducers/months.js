@@ -34,31 +34,16 @@ const _initMonthsInList = (date) => {
   ]);
 }
 
-const _initMonthBefore = (oldList) => {
-  const previousMoment = oldList.first().get("moment");
-  const newList = List(oldList).unshift(_initMonth(subMonths(previousMoment, 1)));
-  return newList;
-}
-
-const _initMonthAfter = (last) => {
-  const newLastDate = _initMonth(addMonths(new Date(last), 1));
-  console.warn(_initMonth(addMonths(new Date(last), 1)));
-  
-  //const previousMoment = Map(List(oldList).last()).get("moment");
-  //const newList = List(oldList).push(initMonth(addMonths(previousMoment, 1)));
-  return "aaaa";
-}
-
-const initialMonthsState = Map({
+const initialState = Map({
   inList: _initMonthsInList(initialDate),
 });
 
-export default months = (state = initialMonthsState, action) => {
+export default months = (state = initialState, action) => {
   switch (action.type) {
     case 'addMonthBefore':
-    return state.update('inList', list => list.unshift("bbb"));     
+    return state.update('inList', list => list.unshift(_initMonth(subMonths(new Date(state.get('inList').first()), 1))));       
     case 'addMonthAfter':
-      return state.update('inList', list => list.push(_initMonth(addMonths(new Date(state.get('inList').last()), 1))))        
+      return state.update('inList', list => list.push(_initMonth(addMonths(new Date(state.get('inList').last()), 1))));     
     default:
       return state;
   }

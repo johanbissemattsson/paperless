@@ -4,11 +4,12 @@ import { AppNavigator } from '../navigators/AppNavigator';
 
 // Start with two routes: The Main screen, with the Login screen on top.
 const firstAction = AppNavigator.router.getActionForPathAndParams('Main');
-const initialNavState = AppNavigator.router.getStateForAction(
+
+const initialState = AppNavigator.router.getStateForAction(
   firstAction
 );
 
-export default nav = (state = initialNavState, action) => {
+export default nav = (state = initialState, action) => {
   let nextState;
   switch (action.type) {
     default:

@@ -4,11 +4,11 @@ const initialState = Map({
   isCameraActivated: true,
 });
 
-export default documents = (state = initialState, action) => {
+export default camera = (state = initialState, action) => {
   switch (action.type) {         
-    case 'Login':  
+    case 'ActivateCamera':  
       return state.update('isCameraActivated', () => true);
-    case 'Logout':
+    case 'DeactivateCamera':
       return state.update('isCameraActivated', () => false);
     default:
       return state;
