@@ -5,7 +5,6 @@ import months from './months';
 import documents from './documents';
 import camera from './camera';
 
-
 const appReducer = combineReducers({
   nav,
   months,
