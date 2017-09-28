@@ -14,39 +14,30 @@ class MainScreen extends React.Component {
     title: 'Main Screen',
   };
 
-  componentDidMount() {
-    //const { loadDocuments } = this.props;
-    //loadDocuments();
-  }
-
-  /* Following is an working example of using VirtualizedList, FlatList however seems to use VirtualizedList as well */
-  /*
-    <VirtualizedList 
-      style={styles.list}
-      contentContainerStyle={styles.listContentContainer}
-      data={immutableData}
-      renderItem={({item}) => {console.log(item);return <ListItem hej={item.get('key')} monthName={item.get('monthName')}/>}}
-      getItem={(items, index) => immutableData.get(index)}
-      getItemCount={(items) => (items.size || 0)}
-      keyExtractor={(item, index) => String(index)}
-      ItemSeparatorComponent={ListItemSeparator}
-    />
-  */
+  _keyExtractor = (item, index) => item;
+  _getItem = (items, index) => items.get(index);
+  _getItemCount = (items) => (items.size || 0);
+  _renderItem = ({item}) => (
+     <ListItem id={item}/>
+  )
 
   render() {  
-    const { navigate } = this.props.navigation;
-    const documents = this.props.documents;
-    const immutableDocumentsData = documents.get('visibleMonths');
-    
+    const months = this.props.months;
+    const addMonthAfter = this.props.addMonthAfter;
+
     return (
       <View style={styles.container}>
-        <FlatList 
+        <VirtualizedList 
           style={styles.list}
           contentContainerStyle={styles.listContentContainer}
-          data={immutableDocumentsData}
-          renderItem={({item}) => <ListItem monthName={item.monthName}/>}
-          keyExtractor={(item, index) => String(index)}
+          data={months.get('inList')}
+          renderItem={this._renderItem}
+          getItem={this._getItem}
+          getItemCount={this._getItemCount}
+          keyExtractor={this._keyExtractor}
           ItemSeparatorComponent={ListItemSeparator}
+          onEndReached={addMonthAfter}
+          showsVerticalScrollIndicator={false}
         />
         <DocumentButton />
         <ContextMenu />
@@ -56,12 +47,15 @@ class MainScreen extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  documents: state.documents,  
+  months: state.months,
+  documents: state.documents,
 });
 
 const mapDispatchToProps = dispatch => ({
   loadDocuments: () => dispatch({ type: 'loadDocuments' }),
-  login: () => dispatch({ type: 'Login' })
+  login: () => dispatch({ type: 'Login' }),
+  addMonthBefore: () => dispatch({ type: 'addMonthBefore' }),
+  addMonthAfter: () => dispatch({ type: 'addMonthAfter' }),
 });
 
 

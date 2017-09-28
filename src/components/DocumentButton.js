@@ -15,14 +15,13 @@ const DocumentButton = ({ logout, login, loginScreen, isCameraActivated }) => (
 )
 
 DocumentButton.PropTypes = {
-  isCameraActivated: PropTypes.bool.isRequired,
   logout: PropTypes.func.isRequired,
   login: PropTypes.func.isRequired,
   loginScreen: PropTypes.func.isRequired,
 }
 
 const mapStateToProps = state => ({
-  isCameraActivated: state.documents.isCameraActivated,
+  isCameraActivated: state.documents.get('isCameraActivated'),
 });
 
 const mapDispatchToProps = dispatch => ({

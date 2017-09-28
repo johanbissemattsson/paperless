@@ -3,22 +3,22 @@ import PropTypes from 'prop-types';
 import { StyleSheet, Text, View, Button } from 'react-native';
 
 export default class ListItem extends React.Component {
-  render() {  
+  render() {
     return (
       <View style={styles.container}>
-        <Text>{this.props.monthName}</Text>
+        <Text>{this.props.id}</Text>
       </View>
     );
   }
 }
 
 ListItem.propTypes = {
-  monthName: PropTypes.string.isRequired,
+  id: PropTypes.string.isRequired,
 };
 
 const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
-    height: 100
+    height: 300
   }
 });
