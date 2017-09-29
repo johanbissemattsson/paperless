@@ -8,7 +8,7 @@ import { Constants } from 'expo';
 const ContextMenu = ({ settingsScreen }) => (
   (Platform.OS === 'android') ?
     <ToolbarAndroid
-      actions={[{title: 'Refresh', show: 'never'}, {title: 'Settings', show: 'never'},{title: 'Send feedback', show: 'never'},{title: 'Help', show: 'never'}]}
+      actions={[/*{title: 'Search', show: 'always'},*/{title: 'Refresh', show: 'never'}, {title: 'Settings', show: 'never'},{title: 'Help and feedback', show: 'never'}]}
       onActionSelected={settingsScreen}
       style={styles.toolbar}
     />
