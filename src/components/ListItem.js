@@ -2,24 +2,25 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { StyleSheet, Text, View, Button, Dimensions } from 'react-native';
 import { Map, List, Seq } from 'immutable';
-import { format, differenceInWeeks, eachDay, startOfMonth, endOfMonth, startOfWeek, endOfWeek, getDaysInMonth, setDate, getISOWeek, isSameWeek, addWeeks } from 'date-fns';
-/* Following is needed for weekOfMonth */
-//import moment from 'moment';
-//import 'moment-recur';
+import { format, isThisYear, differenceInWeeks, eachDay, startOfMonth, endOfMonth, startOfWeek, endOfWeek, getDaysInMonth, setDate, getISOWeek, isSameWeek, addWeeks } from 'date-fns';
 
 export default class ListItem extends React.PureComponent {
   render() {
-    const { name, days, isThisMonth, daySize, windowSze } = this.props;
-    
+    const { id, item, weeks, name, isThisMonth, daySize } = this.props;
+    const dayHeight = Dimensions.get('window').width / 7; 
     return (
-      <View style={[styles.container, {width: windowSze}]}>
+      <View style={styles.container}>
         <View style={styles.header}>
-          <Text>{name}</Text>
+          <Text>{isThisYear(id) ? format(id, 'MMMM') : format(id, 'MMM YYYY')}</Text>
         </View>
-        <View style={styles.days}>
-          {days.map((day, index) => (
-            <View style={[styles.day, {width: daySize , height: daySize}]} key={index}>
-              <Text style={styles.date}>{format(day, 'D')}</Text>
+        <View style={styles.month}>
+          {weeks.map((week, index) => (
+            <View style={[styles.week, (index === 0 && styles.firstWeekInMonth)]} key={index}>
+              {week.days.map((day, index) => (
+                <View style={[styles.day, {height: dayHeight}]} key={day}>
+                  <Text style={styles.date}>{format(day,'D')}</Text>
+                </View>
+              ))}
             </View>
           ))}
         </View>
@@ -37,16 +38,39 @@ ListItem.propTypes = {
 
 const styles = StyleSheet.create({
   container: {
-    alignItems: 'center',
+    flex: 1,
+    alignItems: 'center',    
+    justifyContent: 'center',    
+    alignSelf: 'stretch',
   },
-  days: {
+  header: {
+    backgroundColor: '#8866ee',
+    borderRadius: 100,
+    paddingTop: 5,
+    paddingBottom: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    elevation: 3
+  },
+  month: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'stretch'
+  },
+  week: {
+    flex: 1,
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'flex-start',
+    alignSelf: 'stretch'
   },
   day: {
-    backgroundColor: '#ee7700'
-  }
+    flex: (1 / 7),
+    alignItems: 'center',    
+    justifyContent: 'center'
+  },
+  firstWeekInMonth: {
+    justifyContent: 'flex-end'
+  },
 });
 
 

@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, Button, VirtualizedList, Dimensions } from 'rea
 import { Constants } from 'expo';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { format, differenceInWeeks, eachDay, startOfMonth, endOfMonth, startOfWeek, endOfWeek, getDaysInMonth, setDate, getISOWeek, isSameWeek, addWeeks, isThisYear, isThisMonth, getDay } from 'date-fns';
+import { format, differenceInCalendarWeeks, differenceInWeeks, eachDay, startOfMonth, endOfMonth, startOfWeek, endOfWeek, getDaysInMonth, setDate, getISOWeek, isSameWeek, addWeeks, isThisYear, isThisMonth, getDay } from 'date-fns';
 import { Map, List, Seq } from 'immutable';
 
 import DocumentButton from '../components/DocumentButton';
@@ -22,28 +22,24 @@ class MainScreen extends React.Component {
   _renderItem = ({item}) => (
     <ListItem
       id={item}
-      name={isThisYear(item) ? format(item, 'MMMM') : format(item, 'MMM YYYY')}
-      days={eachDay(startOfMonth(item), endOfMonth(item))}
-      firstWeekday={getDay(startOfMonth(item))}
-      isThisMonth={isThisMonth(item)}
-      daySize={Dimensions.get('window').width / 7}
-      windowSize={Dimensions.get('window').width}
-      /*
-        // maybe use differenceInCalendarWeeks instead?
-        weeks={List(new Array(moment(endOfMonth(item)).monthWeek() + 1))
-        .map((_,w) => (
-          Seq(eachDay(startOfMonth(item),endOfMonth(item))).filter((d) => (
-            isSameWeek(d, addWeeks(item,w))
-          ))
+      weeks={Seq(new Array(differenceInWeeks(endOfMonth(item), startOfMonth(item)) + 1))
+        .map((_,week) => (
+          {days: Seq(eachDay(startOfMonth(item),endOfMonth(item))).filter((days) => (
+            isSameWeek(days, addWeeks(item,week))))
+            .map((day) => (format(day, 'YYYY-MM-DD')
+            ))
+          }
         ))
-      }*/
+      }
+      isThisMonth={isThisMonth(item)}
     />
   )
 
   render() {  
     const months = this.props.months;
     const addMonthAfter = this.props.addMonthAfter;
-
+    const windowidth = Dimensions.get('window').width;
+    
     return (
       <View style={styles.container}>
         <VirtualizedList 
@@ -54,7 +50,7 @@ class MainScreen extends React.Component {
           getItem={this._getItem}
           getItemCount={this._getItemCount}
           keyExtractor={this._keyExtractor}
-          ItemSeparatorComponent={ListItemSeparator}
+          //ItemSeparatorComponent={ListItemSeparator}
           onEndReached={addMonthAfter}
           showsVerticalScrollIndicator={false}
         />
@@ -83,12 +79,14 @@ export default connect(mapStateToProps, mapDispatchToProps)(MainScreen);
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ff9900',
+    backgroundColor: '#9977ff',
     alignItems: 'center',
     justifyContent: 'center',
   },
   list: {
     flex: 1,
+    alignSelf: 'stretch',
+
   },
   listContentContainer: {
   }
