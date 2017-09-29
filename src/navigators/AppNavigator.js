@@ -5,8 +5,8 @@ import { addNavigationHelpers, StackNavigator, NavigationActions } from 'react-n
 import { BackHandler } from 'react-native';
 import { Constants } from 'expo';
 
-import MainScreen from '../components/MainScreen';
-import SettingsScreen from '../components/SettingsScreen';
+import MainScreen from '../containers/MainScreen';
+import SettingsScreen from '../containers/SettingsScreen';
 
 const routeConfigs = {
   Main: { 

@@ -1,13 +1,15 @@
 import React from 'react';
-import { StyleSheet, Text, View, Button, FlatList, VirtualizedList } from 'react-native';
+import { StyleSheet, Text, View, Button, VirtualizedList, Dimensions } from 'react-native';
 import { Constants } from 'expo';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import { format, differenceInWeeks, eachDay, startOfMonth, endOfMonth, startOfWeek, endOfWeek, getDaysInMonth, setDate, getISOWeek, isSameWeek, addWeeks, isThisYear, isThisMonth, getDay } from 'date-fns';
+import { Map, List, Seq } from 'immutable';
 
-import DocumentButton from './DocumentButton';
-import ContextMenu from './ContextMenu';
-import ListItem from './ListItem';
-import ListItemSeparator from './ListItemSeparator';
+import DocumentButton from '../components/DocumentButton';
+import ContextMenu from '../components/ContextMenu';
+import ListItem from '../components/ListItem';
+import ListItemSeparator from '../components/ListItemSeparator';
 
 class MainScreen extends React.Component {
   static navigationOptions = {
@@ -18,7 +20,24 @@ class MainScreen extends React.Component {
   _getItem = (items, index) => items.get(index);
   _getItemCount = (items) => (items.size || 0);
   _renderItem = ({item}) => (
-     <ListItem id={item}/>
+    <ListItem
+      id={item}
+      name={isThisYear(item) ? format(item, 'MMMM') : format(item, 'MMM YYYY')}
+      days={eachDay(startOfMonth(item), endOfMonth(item))}
+      firstWeekday={getDay(startOfMonth(item))}
+      isThisMonth={isThisMonth(item)}
+      daySize={Dimensions.get('window').width / 7}
+      windowSize={Dimensions.get('window').width}
+      /*
+        // maybe use differenceInCalendarWeeks instead?
+        weeks={List(new Array(moment(endOfMonth(item)).monthWeek() + 1))
+        .map((_,w) => (
+          Seq(eachDay(startOfMonth(item),endOfMonth(item))).filter((d) => (
+            isSameWeek(d, addWeeks(item,w))
+          ))
+        ))
+      }*/
+    />
   )
 
   render() {  
@@ -70,10 +89,8 @@ const styles = StyleSheet.create({
   },
   list: {
     flex: 1,
-    alignSelf: 'stretch', 
   },
   listContentContainer: {
-    alignItems: 'center'    
   }
 });
 
