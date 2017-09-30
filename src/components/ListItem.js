@@ -72,22 +72,3 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end'
   },
 });
-
-
-/*
-const initMonth = (date) => {
-  const daysOfMonth = eachDay(startOfMonth(date),endOfMonth(date));
-  return [
-    {
-      key: format(date, 'YYYYMM'),
-      name: format(date, 'MMMM'),
-      weeks: new Array(differenceInWeeks(endOfMonth(date), startOfMonth(date)) + 1)
-      .fill()
-      .map((_,w) => ({
-        startOfWeek: w
-      }))
-    },
-  ]
-}
-    format(subMonths(date, 1), formatConfig),
-*/

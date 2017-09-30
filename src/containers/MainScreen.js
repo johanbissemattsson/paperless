@@ -36,7 +36,7 @@ class MainScreen extends React.Component {
   )
 
   render() {  
-    const months = this.props.months;
+    const calendar = this.props.calendar;
     const addMonthAfter = this.props.addMonthAfter;
     const windowidth = Dimensions.get('window').width;
     
@@ -45,7 +45,7 @@ class MainScreen extends React.Component {
         <VirtualizedList 
           style={styles.list}
           contentContainerStyle={styles.listContentContainer}
-          data={months.get('inList')}
+          data={calendar.get('months')}
           renderItem={this._renderItem}
           getItem={this._getItem}
           getItemCount={this._getItemCount}
@@ -62,7 +62,7 @@ class MainScreen extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  months: state.months,
+  calendar: state.calendar,
   documents: state.documents,
 });
 
