@@ -1,7 +1,6 @@
 import { combineReducers } from 'redux';
 
 import nav from './nav';
-import months from './months';
 import calendar from './calendar';
 import documents from './documents';
 import camera from './camera';
@@ -9,7 +8,6 @@ import camera from './camera';
 const appReducer = combineReducers({
   nav,
   calendar,
-  months,
   documents,
   camera
 });
