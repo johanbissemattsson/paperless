@@ -28,8 +28,8 @@ export default calendar = (state = initialState, action) => {
       const lastMonth = state.get('months').last();
       return state.update('months', list => (
         list.withMutations((listWithMutations) => {
-          for(let i = 0; i <= amountOfMonthsToAdd; i++) {
-            listWithMutations.push(_initMonth(addMonths(lastMonth, i)))            
+          for(let a = 0; a <= amountOfMonthsToAdd; a++) {
+            listWithMutations.push(_initMonth(addMonths(lastMonth, a)))            
           }
         })
       )) 
