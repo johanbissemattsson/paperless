@@ -6,7 +6,7 @@ import { format, isThisYear, differenceInWeeks, eachDay, startOfMonth, endOfMont
 
 export default class ListItem extends React.PureComponent {
   render() {
-    const { id, item, weeks, name, isThisMonth, daySize } = this.props;
+    const { id, weeks, isThisMonth } = this.props;
     const dayHeight = Dimensions.get('window').width / 7; 
     return (
       <View style={styles.container}>
@@ -31,8 +31,7 @@ export default class ListItem extends React.PureComponent {
 
 ListItem.propTypes = {
   id: PropTypes.string.isRequired,
-  name: PropTypes.string.isRequired,
-  days: PropTypes.array.isRequired,
+  weeks: PropTypes.instanceOf(List).isRequired,
   isThisMonth: PropTypes.bool
 };
 
@@ -42,7 +41,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',    
     justifyContent: 'center',    
     alignSelf: 'stretch',
-    height: 600
+    height: 500
   },
   header: {
     backgroundColor: '#8866ee',
@@ -57,7 +56,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    alignSelf: 'stretch'
+    width: '100%'
   },
   week: {
     flex: 1,

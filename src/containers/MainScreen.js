@@ -28,11 +28,11 @@ class MainScreen extends React.Component {
   _keyExtractor = (item, index) => item;
   _getItem = (items, index) => items.get(index);
   _getItemCount = (items) => (items.size || 0);
-  _getItemLayout = (data, index) => ({length: 600, offset: 600 * index, index: index})
+  _getItemLayout = (data, index) => ({length: 500, offset: 500 * index, index: index})
   _renderItem = ({item}) => (
     <ListItem
       id={item}
-      weeks={Seq(new Array(differenceInCalendarWeeks(endOfMonth(item), startOfMonth(item)) + 1))
+      weeks={List(new Array(differenceInCalendarWeeks(endOfMonth(item), startOfMonth(item)) + 1))
         .map((_,week) => (
           {days: Seq(eachDay(startOfMonth(item),endOfMonth(item))).filter((days) => (
             isSameWeek(days, addWeeks(item,week))))
@@ -68,7 +68,7 @@ class MainScreen extends React.Component {
           getItemCount={this._getItemCount}
           getItemLayout={this._getItemLayout}
           keyExtractor={this._keyExtractor}
-          initialScrollIndex={this.state.scrollIndex - 1} // subtract 1 due to https://github.com/facebook/react-native/issues/13202
+          initialScrollIndex={this.state.scrollIndex - 1} // subtracting 1 due to https://github.com/facebook/react-native/issues/13202
           //ItemSeparatorComponent={ListItemSeparator}
           onEndReached={addMonthsAfter}
           //showsVerticalScrollIndicator={false}
