@@ -42,6 +42,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',    
     justifyContent: 'center',    
     alignSelf: 'stretch',
+    height: 600
   },
   header: {
     backgroundColor: '#8866ee',

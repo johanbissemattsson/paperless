@@ -11,7 +11,16 @@ import ContextMenu from '../components/ContextMenu';
 import ListItem from '../components/ListItem';
 import ListItemSeparator from '../components/ListItemSeparator';
 
+const initialScrollIndex = 6;
+
 class MainScreen extends React.Component {
+  constructor(props, context) {
+    super(props, context);
+    this.state = {
+      scrollIndex: 6
+    };
+  }
+
   static navigationOptions = {
     title: 'Main Screen',
   };
@@ -19,6 +28,7 @@ class MainScreen extends React.Component {
   _keyExtractor = (item, index) => item;
   _getItem = (items, index) => items.get(index);
   _getItemCount = (items) => (items.size || 0);
+  _getItemLayout = (data, index) => ({length: 600, offset: 600 * index, index: index})
   _renderItem = ({item}) => (
     <ListItem
       id={item}
@@ -35,6 +45,10 @@ class MainScreen extends React.Component {
     />
   )
 
+  componentDidMount() {
+    setTimeout(() => {this.refList.scrollToIndex({animated: true, index: this.state.scrollIndex}), 300});
+  }
+
   render() {  
     const calendar = this.props.calendar;
     const addMonthsAfter = this.props.addMonthsAfter;
@@ -43,6 +57,7 @@ class MainScreen extends React.Component {
     return (
       <View style={styles.container}>
         <VirtualizedList
+          ref={node => this.refList = node}
           style={styles.list}
           contentContainerStyle={styles.listContentContainer}
           ListFooterComponent={(<Text>Bottom</Text>)}        
@@ -51,7 +66,9 @@ class MainScreen extends React.Component {
           renderItem={this._renderItem}
           getItem={this._getItem}
           getItemCount={this._getItemCount}
+          getItemLayout={this._getItemLayout}
           keyExtractor={this._keyExtractor}
+          initialScrollIndex={this.state.scrollIndex - 1} // subtract 1 due to https://github.com/facebook/react-native/issues/13202
           //ItemSeparatorComponent={ListItemSeparator}
           onEndReached={addMonthsAfter}
           //showsVerticalScrollIndicator={false}
