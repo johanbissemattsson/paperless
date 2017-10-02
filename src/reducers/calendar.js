@@ -22,9 +22,16 @@ const initialState = Map({
 
 export default calendar = (state = initialState, action) => {
   switch (action.type) {
-    case 'addMonthBefore':
-     return state.update('months', list => list.unshift(_initMonth(subMonths(format(state.get('months').first()), 1))));       
-    case 'addMonthAfter':
+    case 'addMonthsBefore':
+      const firstMonth = state.get('months').first();
+      return state.update('months', list => (
+        list.withMutations((listWithMutations) => {
+          for(let a = 0; a <= amountOfMonthsToAdd; a++) {
+            listWithMutations.unshift(_initMonth(addMonths(firstMonth, a)))            
+          }
+        })
+      ))    
+    case 'addMonthsAfter':
       const lastMonth = state.get('months').last();
       return state.update('months', list => (
         list.withMutations((listWithMutations) => {

@@ -37,7 +37,7 @@ class MainScreen extends React.Component {
 
   render() {  
     const calendar = this.props.calendar;
-    const addMonthAfter = this.props.addMonthAfter;
+    const addMonthsAfter = this.props.addMonthsAfter;
     const windowidth = Dimensions.get('window').width;
     
     return (
@@ -51,7 +51,7 @@ class MainScreen extends React.Component {
           getItemCount={this._getItemCount}
           keyExtractor={this._keyExtractor}
           //ItemSeparatorComponent={ListItemSeparator}
-          onEndReached={addMonthAfter}
+          onEndReached={addMonthsAfter}
           //showsVerticalScrollIndicator={false}
           windowSize={12}
           initialNumToRender={3}
@@ -73,8 +73,8 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
   loadDocuments: () => dispatch({ type: 'loadDocuments' }),
   login: () => dispatch({ type: 'Login' }),
-  addMonthBefore: () => dispatch({ type: 'addMonthBefore' }),
-  addMonthAfter: () => dispatch({ type: 'addMonthAfter' }),
+  addMonthsBefore: () => dispatch({ type: 'addMonthsBefore' }),
+  addMonthsAfter: () => dispatch({ type: 'addMonthsAfter' }),
 });
 
 
