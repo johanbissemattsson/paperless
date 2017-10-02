@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, Button, VirtualizedList, Dimensions } from 'rea
 import { Constants } from 'expo';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { format, differenceInCalendarWeeks, differenceInWeeks, eachDay, startOfMonth, endOfMonth, startOfWeek, endOfWeek, getDaysInMonth, setDate, getISOWeek, isSameWeek, addWeeks, isThisYear, isThisMonth, getDay } from 'date-fns';
+import { format, differenceInCalendarWeeks, eachDay, startOfMonth, endOfMonth, startOfWeek, endOfWeek, getDaysInMonth, setDate, getISOWeek, isSameWeek, addWeeks, isThisYear, isThisMonth, getDay } from 'date-fns';
 import { Map, List, Seq } from 'immutable';
 
 import DocumentButton from '../components/DocumentButton';
@@ -22,7 +22,7 @@ class MainScreen extends React.Component {
   _renderItem = ({item}) => (
     <ListItem
       id={item}
-      weeks={Seq(new Array(differenceInWeeks(endOfMonth(item), startOfMonth(item)) + 1))
+      weeks={Seq(new Array(differenceInCalendarWeeks(endOfMonth(item), startOfMonth(item)) + 1))
         .map((_,week) => (
           {days: Seq(eachDay(startOfMonth(item),endOfMonth(item))).filter((days) => (
             isSameWeek(days, addWeeks(item,week))))
@@ -52,7 +52,11 @@ class MainScreen extends React.Component {
           keyExtractor={this._keyExtractor}
           //ItemSeparatorComponent={ListItemSeparator}
           onEndReached={addMonthAfter}
-          showsVerticalScrollIndicator={false}
+          //showsVerticalScrollIndicator={false}
+          windowSize={12}
+          initialNumToRender={3}
+          removeClippedSubviews={true}
+          //onEndReachedThreshold={0.1}
         />
         <DocumentButton />
         <ContextMenu />
