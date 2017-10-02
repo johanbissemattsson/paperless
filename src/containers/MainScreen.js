@@ -42,9 +42,11 @@ class MainScreen extends React.Component {
     
     return (
       <View style={styles.container}>
-        <VirtualizedList 
+        <VirtualizedList
           style={styles.list}
           contentContainerStyle={styles.listContentContainer}
+          ListFooterComponent={(<Text>Bottom</Text>)}        
+          ListHeaderComponent={(<Text>Top</Text>)}
           data={calendar.get('months')}
           renderItem={this._renderItem}
           getItem={this._getItem}
