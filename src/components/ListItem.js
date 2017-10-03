@@ -41,32 +41,35 @@ const styles = StyleSheet.create({
     alignItems: 'center',    
     justifyContent: 'center',    
     alignSelf: 'stretch',
-    height: 500
+    height: 400,
   },
   header: {
-    backgroundColor: '#8866ee',
+    backgroundColor: '#8766eed',
     borderRadius: 100,
     paddingTop: 5,
     paddingBottom: 5,
     paddingLeft: 10,
     paddingRight: 10,
-    elevation: 3
+    elevation: 3,
+    marginTop: 10
   },
   month: {
     flex: 1,
-    alignItems: 'center',
+    alignItems: 'stretch',
     justifyContent: 'center',
-    width: '100%'
+    alignSelf: 'stretch',  
   },
   week: {
-    flex: 1,
     flexDirection: 'row',
-    alignSelf: 'stretch'
+    alignSelf: 'stretch',
+    
   },
   day: {
     flex: (1 / 7),
     alignItems: 'center',    
-    justifyContent: 'center'
+    justifyContent: 'center',
+
+    
   },
   firstWeekInMonth: {
     justifyContent: 'flex-end'

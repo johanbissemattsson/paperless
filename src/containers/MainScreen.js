@@ -28,7 +28,7 @@ class MainScreen extends React.Component {
   _keyExtractor = (item, index) => item;
   _getItem = (items, index) => items.get(index);
   _getItemCount = (items) => (items.size || 0);
-  _getItemLayout = (data, index) => ({length: 500, offset: 500 * index, index: index})
+  _getItemLayout = (data, index) => ({length: 400, offset: 400 * index, index: index})
   _renderItem = ({item}) => (
     <ListItem
       id={item}
