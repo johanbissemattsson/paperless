@@ -1,16 +1,23 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { StyleSheet, Button, View, Text } from 'react-native';
+import { StyleSheet, Button, View, Text, TouchableNativeFeedback, TouchableOpacity, Platform } from 'react-native';
 import { NavigationActions } from 'react-navigation';
 import { Constants } from 'expo';
 
+import { LOGIN, LOGOUT } from '../actionTypes';
+
 const DocumentButton = ({ logout, login, loginScreen, isCameraActivated }) => (
   <View style={styles.container}>
-    <Button
-      title={isCameraActivated ? 'Take photo' : 'Add document'}
-      onPress={isCameraActivated ? logout : login}
-    />
+    {(Platform.OS === 'android') ?
+      <TouchableNativeFeedback onPress={isCameraActivated ? logout : login} background={TouchableNativeFeedback.SelectableBackgroundBorderless()}>
+        <View style={styles.button} />
+      </TouchableNativeFeedback>
+      :
+      <TouchableHighlight onPress={isCameraActivated ? logout : login}>
+        <View style={styles.button} />
+      </TouchableHighlight>             
+    }
   </View>
 )
 
@@ -25,8 +32,8 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  logout: () => dispatch({ type: 'Logout' }),
-  login: () => dispatch({ type: 'Login' }),
+  logout: () => dispatch({ type: LOGOUT }),
+  login: () => dispatch({ type: LOGIN }),
   loginScreen: () =>
     dispatch(NavigationActions.navigate({ routeName: 'Settings', user: 'aaa' })),
 });
@@ -37,6 +44,23 @@ const styles = StyleSheet.create({
   container: {
     position: 'absolute',
     bottom: 0,
-    marginBottom: Constants.statusBarHeight
+    marginBottom: Constants.statusBarHeight,
+    flex: 1,
+    alignItems: 'center',    
+    justifyContent: 'center',
+    borderRadius: 100,
+    backgroundColor: '#8766ee',    
+    elevation: 1,
+    width: 72,
+    height: 72,
+    
+  },
+  button: {
+    width: 72,
+    height: 72,
+    backgroundColor: '#8766ee',
+    borderWidth: 6,
+    borderColor: '#ffffff',
+    borderRadius: 100,
   }
 });
