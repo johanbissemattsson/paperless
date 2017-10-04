@@ -6,6 +6,7 @@ import { bindActionCreators } from 'redux';
 import { format, differenceInCalendarWeeks, eachDay, startOfMonth, endOfMonth, startOfWeek, endOfWeek, getDaysInMonth, setDate, getISOWeek, isSameWeek, addWeeks, isThisYear, isThisMonth, getDay } from 'date-fns';
 import { Map, List, Seq } from 'immutable';
 
+import { CLEAR_GO_TO } from '../actionTypes';
 import DocumentButton from '../components/DocumentButton';
 import ContextMenu from '../components/ContextMenu';
 import ListItem from '../components/ListItem';
@@ -46,14 +47,33 @@ class MainScreen extends React.Component {
   )
 
   componentDidMount() {
-    setTimeout(() => {this.refList.scrollToIndex({animated: true, index: this.state.scrollIndex}), 300});
+    setTimeout(() => {this.refList.scrollToIndex({animated: true, viewPosition: 0.5, index: this.state.scrollIndex}), 300});
+  }
+
+  shouldComponentUpdate(nextProps) {
+    const { calendar } = this.props;
+    if (!nextProps.calendar.get('goTo')) {
+      console.log('shouldComponentUpdate prevented rerender');
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  componentDidUpdate() {
+    const { calendar, clearGoTo } = this.props;
+    if (calendar.get('goTo')) {
+      const index = calendar.get('months').findIndex(item => item === format(calendar.get('goTo').date, 'YYYY-MM'));
+      this.refList.scrollToIndex({animated: true, viewPosition: 0.5, index: index});
+      clearGoTo();      
+    }
   }
 
   render() {  
-    const calendar = this.props.calendar;
-    const addMonthsAfter = this.props.addMonthsAfter;
+    const { calendar, addMonthsAfter, clearGoTo } = this.props;
     const windowidth = Dimensions.get('window').width;
-    
+    console.log("render!");
+
     return (
       <View style={styles.container}>
         <VirtualizedList
@@ -94,6 +114,7 @@ const mapDispatchToProps = dispatch => ({
   login: () => dispatch({ type: 'Login' }),
   addMonthsBefore: () => dispatch({ type: 'addMonthsBefore' }),
   addMonthsAfter: () => dispatch({ type: 'addMonthsAfter' }),
+  clearGoTo: () => dispatch({type: CLEAR_GO_TO})
 });
 
 

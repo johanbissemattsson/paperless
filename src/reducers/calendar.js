@@ -1,18 +1,24 @@
 import { List, Map, Seq } from 'immutable';
 import { format, addMonths, subMonths } from 'date-fns';
 
+import { GO_TO, CLEAR_GO_TO } from '../actionTypes';
+
 const initialDate = new Date();
 const initialMonthsBeforeAndAfter = 6; // amount of months to initialize before and after the initial date 
 const amountOfMonthsToAdd = 6;
 
-const _initMonth = (date) => {
+const _formatMonth = (date) => {
   return format(date, 'YYYY-MM');
+}
+
+const _formatDate = (date) => {
+  return format(date, 'YYYY-MM-DD');  
 }
 
 const _initMonthsInList = (date) => (
   List(new Array(initialMonthsBeforeAndAfter + 1 + initialMonthsBeforeAndAfter))
     .map((_,m) => (
-      _initMonth(addMonths(subMonths(date, initialMonthsBeforeAndAfter ), m))
+      _formatMonth(addMonths(subMonths(date, initialMonthsBeforeAndAfter ), m))
     ))
 )
 
@@ -22,12 +28,19 @@ const initialState = Map({
 
 export default calendar = (state = initialState, action) => {
   switch (action.type) {
+    case GO_TO:
+      return state.set('goTo', {
+        date: _formatDate(action.date)
+      });
+    case CLEAR_GO_TO: 
+      console.log("clear");
+      return state.delete('goTo');
     case 'addMonthsBefore':
       const firstMonth = state.get('months').first();
       return state.update('months', list => (
         list.withMutations((listWithMutations) => {
           for(let a = 0; a <= amountOfMonthsToAdd; a++) {
-            listWithMutations.unshift(_initMonth(addMonths(firstMonth, a)))            
+            listWithMutations.unshift(_formatMonth(addMonths(firstMonth, a)))            
           }
         })
       ))    
@@ -36,10 +49,10 @@ export default calendar = (state = initialState, action) => {
       return state.update('months', list => (
         list.withMutations((listWithMutations) => {
           for(let a = 0; a <= amountOfMonthsToAdd; a++) {
-            listWithMutations.push(_initMonth(addMonths(lastMonth, a)))            
+            listWithMutations.push(_formatMonth(addMonths(lastMonth, a)))            
           }
         })
-      )) 
+      ))
     default:
       return state;
   }
