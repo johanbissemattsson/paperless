@@ -48,19 +48,18 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',    
     justifyContent: 'center',
-    borderRadius: 100,
     backgroundColor: '#8766ee',    
     elevation: 1,
     width: 72,
     height: 72,
+    borderRadius: 72,    
     
   },
   button: {
-    width: 72,
-    height: 72,
-    backgroundColor: '#8766ee',
+    flex: 1,
+    alignSelf: 'stretch',
     borderWidth: 6,
     borderColor: '#ffffff',
-    borderRadius: 100,
+    borderRadius: 72,
   }
 });
