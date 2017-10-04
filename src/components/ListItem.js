@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { StyleSheet, Text, View, Button, Dimensions } from 'react-native';
-import { Map, List, Seq } from 'immutable';
-import { format, isThisYear, differenceInWeeks, eachDay, startOfMonth, endOfMonth, startOfWeek, endOfWeek, getDaysInMonth, setDate, getISOWeek, isSameWeek, addWeeks } from 'date-fns';
+import { StyleSheet, Text, View, Dimensions } from 'react-native';
+import { List } from 'immutable';
+import { format, isThisYear } from 'date-fns';
 
 export default class ListItem extends React.PureComponent {
   render() {
@@ -44,13 +44,13 @@ const styles = StyleSheet.create({
     height: 400,
   },
   header: {
-    backgroundColor: '#8766eed',
+    backgroundColor: '#8766ee',
     borderRadius: 100,
     paddingTop: 5,
     paddingBottom: 5,
     paddingLeft: 10,
     paddingRight: 10,
-    elevation: 3,
+    elevation: 1,
     marginTop: 10
   },
   month: {
