@@ -3,7 +3,8 @@ import { all, takeEvery } from 'redux-saga/effects';
 import { LOGIN, LOGOUT } from '../actionTypes';
 
 /* Start worker sagas */
-const sagaLogin = function* sagaLogin(action) {
+
+const login = function* login(action) {
   try {
     console.log("saga login!!!");
   } catch (e) {
@@ -11,16 +12,17 @@ const sagaLogin = function* sagaLogin(action) {
   }
 }
 
-const sagaLogout = function* sagaLogout(action) {
+const logout = function* logout(action) {
   try {
     console.log("saga logout!!!");
   } catch (e) {
     console.log("error", e);
   }
 }
+
 /* End worker sagas */
 
 export default helloSaga = [
-  takeEvery(LOGIN, sagaLogin),
-  takeEvery(LOGOUT, sagaLogout)
+  takeEvery(LOGIN, login),
+  takeEvery(LOGOUT, logout)
 ];
