@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { StyleSheet, Text, View, Dimensions } from 'react-native';
 import { List } from 'immutable';
 import { format, isThisYear } from 'date-fns';
+import { LinearGradient } from 'expo';
 
 export default class ListItem extends React.PureComponent {
   render() {
@@ -10,6 +11,7 @@ export default class ListItem extends React.PureComponent {
     const dayHeight = Dimensions.get('window').width / 7; 
     return (
       <View style={styles.container}>
+        <LinearGradient style={styles.gradient} colors={['rgba(0,0,0,0.05)', 'rgba(0,0,0,0)']}/>
         <View style={styles.header}>
           <Text>{isThisYear(id) ? format(id, 'MMMM') : format(id, 'MMM YYYY')}</Text>
         </View>
@@ -51,7 +53,13 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
     paddingRight: 10,
     elevation: 1,
-    marginTop: 10
+    marginTop: 16
+  },
+  gradient: {
+    width: '100%',
+    height: 48,
+    position: 'absolute',
+    top: 0
   },
   month: {
     flex: 1,
