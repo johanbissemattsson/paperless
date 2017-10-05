@@ -1,8 +1,6 @@
 import { List, Map, Seq } from 'immutable';
 import { format, addMonths, subMonths } from 'date-fns';
 
-import { GO_TO, CLEAR_GO_TO } from '../actionTypes';
-
 const initialDate = new Date();
 const initialMonthsBeforeAndAfter = 6; // amount of months to initialize before and after the initial date 
 const amountOfMonthsToAdd = 6;
@@ -24,17 +22,11 @@ const _initMonthsInList = (date) => (
 
 const initialState = Map({
   months: _initMonthsInList( initialDate ),
+  selected: _formatDate( initialDate )
 });
 
 export default calendar = (state = initialState, action) => {
   switch (action.type) {
-    case GO_TO:
-      return state.set('goTo', {
-        date: _formatDate(action.date)
-      });
-    case CLEAR_GO_TO: 
-      console.log("clear");
-      return state.delete('goTo');
     case 'addMonthsBefore':
       const firstMonth = state.get('months').first();
       return state.update('months', list => (

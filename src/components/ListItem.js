@@ -2,25 +2,26 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { StyleSheet, Text, View, Dimensions } from 'react-native';
 import { List } from 'immutable';
-import { format, isThisYear } from 'date-fns';
+import { format, isThisYear, isEqual, isToday, isPast} from 'date-fns';
 import { LinearGradient } from 'expo';
 
 export default class ListItem extends React.PureComponent {
   render() {
-    const { id, weeks, isThisMonth } = this.props;
-    const dayHeight = Dimensions.get('window').width / 7; 
+    const { id, weeks, selected } = this.props;
+    const dayHeight = Dimensions.get('window').width / 7;
+
     return (
-      <View style={styles.container}>
+      <View style={[styles.container, selected && styles.selectedContainer]}>
         <LinearGradient style={styles.gradient} colors={['rgba(0,0,0,0.05)', 'rgba(0,0,0,0)']}/>
-        <View style={styles.header}>
+        <View style={[styles.header, selected && styles.selectedHeader]}>
           <Text>{isThisYear(id) ? format(id, 'MMMM') : format(id, 'MMM YYYY')}</Text>
         </View>
-        <View style={styles.month}>
+        <View style={styles.month} >
           {weeks.map((week, index) => (
             <View style={[styles.week, (index === 0 && styles.firstWeekInMonth)]} key={index}>
               {week.days.map((day, index) => (
-                <View style={[styles.day, {height: dayHeight}]} key={day}>
-                  <Text style={styles.date}>{format(day,'D')}</Text>
+                <View style={[styles.day, {height: dayHeight}, selected && isEqual(day, selected) && styles.selectedDay]} key={day}>
+                  <Text style={[styles.date, isPast(day) && !isToday(day) && styles.pastDate]}>{format(day,'D')}</Text>
                 </View>
               ))}
             </View>
@@ -34,7 +35,7 @@ export default class ListItem extends React.PureComponent {
 ListItem.propTypes = {
   id: PropTypes.string.isRequired,
   weeks: PropTypes.instanceOf(List).isRequired,
-  isThisMonth: PropTypes.bool
+  selected: PropTypes.string.isRequired,
 };
 
 const styles = StyleSheet.create({
@@ -45,6 +46,9 @@ const styles = StyleSheet.create({
     alignSelf: 'stretch',
     height: 400,
   },
+  selectedContainer: {
+    backgroundColor: '#7755dd'    
+  },
   header: {
     backgroundColor: '#8766ee',
     borderRadius: 100,
@@ -54,6 +58,9 @@ const styles = StyleSheet.create({
     paddingRight: 10,
     elevation: 1,
     marginTop: 16
+  },
+  selectedHeader: {
+    backgroundColor: '#5733cc'
   },
   gradient: {
     width: '100%',
@@ -70,14 +77,18 @@ const styles = StyleSheet.create({
   week: {
     flexDirection: 'row',
     alignSelf: 'stretch',
-    
   },
   day: {
     flex: (1 / 7),
     alignItems: 'center',    
-    justifyContent: 'center',
-
-    
+    justifyContent: 'center',   
+  },
+  selectedDay: {
+    backgroundColor: '#5733cc'
+  },
+  date: {},
+  pastDate: {
+    color: 'rgba(0,0,0,0.25)'
   },
   firstWeekInMonth: {
     justifyContent: 'flex-end'

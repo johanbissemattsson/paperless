@@ -6,7 +6,6 @@ import { bindActionCreators } from 'redux';
 import { format, differenceInCalendarWeeks, eachDay, startOfMonth, endOfMonth, startOfWeek, endOfWeek, getDaysInMonth, setDate, getISOWeek, isSameWeek, addWeeks, isThisYear, isThisMonth, getDay } from 'date-fns';
 import { Map, List, Seq } from 'immutable';
 
-import { CLEAR_GO_TO } from '../actionTypes';
 import DocumentButton from '../components/DocumentButton';
 import ContextMenu from '../components/ContextMenu';
 import ListItem from '../components/ListItem';
@@ -18,7 +17,7 @@ class MainScreen extends React.Component {
 
     const { calendar } = props;
     this.state = {
-      scrollIndex: calendar.get('months').findIndex(item => item === format(new Date(), 'YYYY-MM')),
+      scrollIndex: calendar.get('months').findIndex(item => item === format(calendar.get('selected'), 'YYYY-MM')),
     };
   }
 
@@ -30,21 +29,24 @@ class MainScreen extends React.Component {
   _getItem = (items, index) => items.get(index);
   _getItemCount = (items) => (items.size || 0);
   _getItemLayout = (data, index) => ({length: 400, offset: 400 * index, index: index})
-  _renderItem = ({item}) => (
-    <ListItem
-      id={item}
-      weeks={List(new Array(differenceInCalendarWeeks(endOfMonth(item), startOfMonth(item)) + 1))
-        .map((_,week) => (
-          {days: Seq(eachDay(startOfMonth(item),endOfMonth(item))).filter((days) => (
-            isSameWeek(days, addWeeks(item,week))))
-            .map((day) => (format(day, 'YYYY-MM-DD')
-            ))
-          }
-        ))
-      }
-      isThisMonth={isThisMonth(item)}
-    />
-  )
+  _renderItem = (({item}) => {
+    const { calendar } = this.props;
+    return (
+      <ListItem
+        id={item}
+        weeks={List(new Array(differenceInCalendarWeeks(endOfMonth(item), startOfMonth(item)) + 1))
+          .map((_,week) => (
+            {days: Seq(eachDay(startOfMonth(item),endOfMonth(item))).filter((days) => (
+              isSameWeek(days, addWeeks(item,week))))
+              .map((day) => (format(day, 'YYYY-MM-DD')
+              ))
+            }
+          ))
+        }
+        selected={item === format(calendar.get('selected'), 'YYYY-MM') && calendar.get('selected')}
+      />
+    )
+  })
 
   onDocumentButtonPress = (() => {
     const { calendar } = this.props;
