@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { StyleSheet, Text, View, Dimensions } from 'react-native';
 import { List } from 'immutable';
-import { format, isThisYear, isEqual, isToday, isPast} from 'date-fns';
+import { format, isThisYear, isEqual, isToday, isPast, isSameWeek} from 'date-fns';
 import { LinearGradient } from 'expo';
 
 export default class ListItem extends React.PureComponent {
@@ -11,14 +11,14 @@ export default class ListItem extends React.PureComponent {
     const dayHeight = Dimensions.get('window').width / 7;
 
     return (
-      <View style={[styles.container, selected && styles.selectedContainer]}>
+      <View style={[styles.container, selected && styles.selectedContainer, {height: Dimensions.get('window').height}]}>
         <LinearGradient style={styles.gradient} colors={['rgba(0,0,0,0.05)', 'rgba(0,0,0,0)']}/>
         <View style={[styles.header, selected && styles.selectedHeader]}>
           <Text>{isThisYear(id) ? format(id, 'MMMM') : format(id, 'MMM YYYY')}</Text>
         </View>
         <View style={styles.month} >
           {weeks.map((week, index) => (
-            <View style={[styles.week, (index === 0 && styles.firstWeekInMonth)]} key={index}>
+            <View style={[styles.week, (index === 0 && styles.firstWeekInMonth), selected && isSameWeek(week.days.first(), selected) && styles.selectedWeek]} key={index}>
               {week.days.map((day, index) => (
                 <View style={[styles.day, {height: dayHeight}, selected && isEqual(day, selected) && styles.selectedDay]} key={day}>
                   <Text style={[styles.date, isPast(day) && !isToday(day) && styles.pastDate]}>{format(day,'D')}</Text>
@@ -44,10 +44,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',    
     justifyContent: 'center',    
     alignSelf: 'stretch',
-    height: 400,
   },
   selectedContainer: {
-    backgroundColor: '#7755dd'    
+    backgroundColor: '#aa33ee'    
   },
   header: {
     backgroundColor: '#8766ee',
@@ -68,6 +67,10 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 0
   },
+  sameWeek: {
+    borderColor: 'red',
+    borderWidth: 2
+  },
   month: {
     flex: 1,
     alignItems: 'stretch',
@@ -77,6 +80,10 @@ const styles = StyleSheet.create({
   week: {
     flexDirection: 'row',
     alignSelf: 'stretch',
+  },
+  selectedWeek: {
+    borderColor: 'red',
+    borderWidth: 2
   },
   day: {
     flex: (1 / 7),
