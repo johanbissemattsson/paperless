@@ -6,34 +6,43 @@ import { NavigationActions } from 'react-navigation';
 import { Constants } from 'expo';
 import { MaterialIcons } from '@expo/vector-icons';
 
-import { LOGIN, LOGOUT, GO_TO } from '../actionTypes';
+import { LOGIN, LOGOUT } from '../actionTypes';
 
-const DocumentButton = ({ logout, login, loginScreen, isCameraActivated, goTo }) => {
-  _onPress = (e) => {goTo(new Date())};
+class DocumentButton extends React.Component {
+  constructor(props, context) {
+    super(props, context);
+    this.state = {
+    };
+  }
+  
+  render() {
+    const { onPress} = this.props;
 
-  return (
+    return (
     <View style={styles.container}>
       {(Platform.OS === 'android') ?
-        <TouchableNativeFeedback onPress={_onPress} background={TouchableNativeFeedback.SelectableBackgroundBorderless()}>
+        <TouchableNativeFeedback onPress={onPress} background={TouchableNativeFeedback.SelectableBackgroundBorderless()}>
           <View style={styles.button}>
             <MaterialIcons name='add' size={32} color='#8766ee' />
           </View>
         </TouchableNativeFeedback>
         :
-        <TouchableHighlight onPress={isCameraActivated ? logout : login}>
+        <TouchableHighlight onPress={onPress}>
           <View style={styles.button}>
             <MaterialIcons name='arrow-up' size={24} color='#ffffff' />
           </View>
         </TouchableHighlight>             
       }
-    </View>
-  )
+    </View>      
+    );
+  }
 }
 
 DocumentButton.PropTypes = {
   logout: PropTypes.func.isRequired,
   login: PropTypes.func.isRequired,
   loginScreen: PropTypes.func.isRequired,
+  onPress: PropTypes.func.isRequired
 }
 
 const mapStateToProps = state => ({
@@ -41,7 +50,6 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  goTo: (date) => dispatch({ type: GO_TO, date: date}),
   logout: () => dispatch({ type: LOGOUT }),
   login: () => dispatch({ type: LOGIN }),
   loginScreen: () =>

@@ -12,13 +12,13 @@ import ContextMenu from '../components/ContextMenu';
 import ListItem from '../components/ListItem';
 import ListItemSeparator from '../components/ListItemSeparator';
 
-const initialScrollIndex = 6;
-
 class MainScreen extends React.Component {
   constructor(props, context) {
     super(props, context);
+
+    const { calendar } = props;
     this.state = {
-      scrollIndex: 6
+      scrollIndex: calendar.get('months').findIndex(item => item === format(new Date(), 'YYYY-MM')),
     };
   }
 
@@ -46,33 +46,18 @@ class MainScreen extends React.Component {
     />
   )
 
+  onDocumentButtonPress = (() => {
+    const { calendar } = this.props;
+    this.refList.scrollToIndex({animated: true, viewPosition: 0.5, index: calendar.get('months').findIndex(item => item === format(new Date(), 'YYYY-MM'))});
+  })
+
   componentDidMount() {
     setTimeout(() => {this.refList.scrollToIndex({animated: true, viewPosition: 0.5, index: this.state.scrollIndex}), 300});
   }
 
-  shouldComponentUpdate(nextProps) {
-    const { calendar } = this.props;
-    if (!nextProps.calendar.get('goTo')) {
-      console.log('shouldComponentUpdate prevented rerender');
-      return false;
-    } else {
-      return true;
-    }
-  }
-
-  componentDidUpdate() {
-    const { calendar, clearGoTo } = this.props;
-    if (calendar.get('goTo')) {
-      const index = calendar.get('months').findIndex(item => item === format(calendar.get('goTo').date, 'YYYY-MM'));
-      this.refList.scrollToIndex({animated: true, viewPosition: 0.5, index: index});
-      clearGoTo();      
-    }
-  }
-
   render() {  
-    const { calendar, addMonthsAfter, clearGoTo } = this.props;
+    const { calendar, addMonthsAfter } = this.props;
     const windowidth = Dimensions.get('window').width;
-    console.log("render!");
 
     return (
       <View style={styles.container}>
@@ -97,7 +82,7 @@ class MainScreen extends React.Component {
           removeClippedSubviews={true}
           //onEndReachedThreshold={0.1}
         />
-        <DocumentButton />
+        <DocumentButton onPress={this.onDocumentButtonPress}/>
         <ContextMenu />
       </View>
     );
@@ -114,7 +99,6 @@ const mapDispatchToProps = dispatch => ({
   login: () => dispatch({ type: 'Login' }),
   addMonthsBefore: () => dispatch({ type: 'addMonthsBefore' }),
   addMonthsAfter: () => dispatch({ type: 'addMonthsAfter' }),
-  clearGoTo: () => dispatch({type: CLEAR_GO_TO})
 });
 
 
@@ -136,3 +120,9 @@ const styles = StyleSheet.create({
   }
 });
 
+/*
+componentDidUpdate() {
+    const index = calendar.get('months').findIndex(item => item === format(calendar.get('goTo').date, 'YYYY-MM'));
+    this.refList.scrollToIndex({animated: true, viewPosition: 0.5, index: index});
+}
+  */
