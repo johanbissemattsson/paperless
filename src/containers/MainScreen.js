@@ -3,13 +3,14 @@ import { StyleSheet, Text, View, Button, VirtualizedList, Dimensions } from 'rea
 import { Constants } from 'expo';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { format, differenceInCalendarWeeks, eachDay, startOfMonth, endOfMonth, startOfWeek, endOfWeek, getDaysInMonth, setDate, getISOWeek, isSameWeek, addWeeks, isThisYear, isThisMonth, getDay } from 'date-fns';
+import { format, differenceInCalendarWeeks, eachDay, startOfMonth, endOfMonth, startOfWeek, endOfWeek, getDaysInMonth, setDate, getISOWeek, isSameWeek, addWeeks, isThisYear, isThisMonth, isSameMonth, getDay } from 'date-fns';
 import { Map, List, Seq } from 'immutable';
 
 import DocumentButton from '../components/DocumentButton';
 import ContextMenu from '../components/ContextMenu';
 import ListItem from '../components/ListItem';
 import ListItemSeparator from '../components/ListItemSeparator';
+import { SELECT_DATE } from '../actionTypes';
 
 class MainScreen extends React.Component {
   constructor(props, context) {
@@ -28,9 +29,22 @@ class MainScreen extends React.Component {
   _keyExtractor = (item, index) => item;
   _getItem = (items, index) => items.get(index);
   _getItemCount = (items) => (items.size || 0);
-  _getItemLayout = (data, index) => ({length: Dimensions.get('window').height, offset: Dimensions.get('window').height * index, index: index})
+  _getItemLayout = (data, index) => {
+    const { calendar } = this.props;
+    const weeksInMonth = differenceInCalendarWeeks(endOfMonth(data.get(index)), startOfMonth(data.get(index))) + 2;
+    const windowWidth = Dimensions.get('window').width;
+    const dayHeight = Dimensions.get('window').width / 7;
+    const indexOfSelected = calendar.get('months').findIndex(item => item === format(new Date(), 'YYYY-MM'));
+    const itemLength = 7 * dayHeight;
+    return({
+      length: itemLength, // + (index === indexOfSelected) && windowWidth,
+      offset: itemLength * index, //+ (index > indexOfSelected) && windowWidth,
+      index: index
+    })
+  }
   _renderItem = (({item}) => {
     const { calendar } = this.props;
+    const selected = calendar.get('selected');
     return (
       <ListItem
         id={item}
@@ -43,7 +57,8 @@ class MainScreen extends React.Component {
             }
           ))
         }
-        selected={item === format(calendar.get('selected'), 'YYYY-MM') && calendar.get('selected')}
+        selected={isSameMonth(item, selected) && selected}
+        onPress={this.onDatePress}
       />
     )
   })
@@ -53,13 +68,17 @@ class MainScreen extends React.Component {
     this.refList.scrollToIndex({animated: true, viewPosition: 0.5, index: calendar.get('months').findIndex(item => item === format(new Date(), 'YYYY-MM'))});
   })
 
+  onDatePress = ((day) => {
+    const { selectDate } = this.props;
+    selectDate(day);
+  })
+
   componentDidMount() {
-    setTimeout(() => {this.refList.scrollToIndex({animated: true, viewPosition: 0.5, index: this.state.scrollIndex}), 300});
+    //setTimeout(() => {this.refList.scrollToIndex({animated: true, viewPosition: 0.5, index: this.state.scrollIndex}), 300});
   }
 
   render() {  
     const { calendar, addMonthsAfter } = this.props;
-    const windowidth = Dimensions.get('window').width;
 
     return (
       <View style={styles.container}>
@@ -80,8 +99,8 @@ class MainScreen extends React.Component {
           onEndReached={addMonthsAfter}
           //showsVerticalScrollIndicator={false}
           windowSize={12}
-          initialNumToRender={3}
-          removeClippedSubviews={true}
+          initialNumToRender={6}
+          //removeClippedSubviews={true}
           //onEndReachedThreshold={0.1}
         />
         <DocumentButton onPress={this.onDocumentButtonPress}/>
@@ -97,6 +116,7 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
+  selectDate: (date) => dispatch({type: SELECT_DATE, date: date}),
   loadDocuments: () => dispatch({ type: 'loadDocuments' }),
   login: () => dispatch({ type: 'Login' }),
   addMonthsBefore: () => dispatch({ type: 'addMonthsBefore' }),
@@ -116,7 +136,6 @@ const styles = StyleSheet.create({
   list: {
     flex: 1,
     alignSelf: 'stretch',
-
   },
   listContentContainer: {
   }

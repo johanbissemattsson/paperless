@@ -1,30 +1,45 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { StyleSheet, Text, View, Dimensions } from 'react-native';
+import { StyleSheet, Text, View, Dimensions, TouchableNativeFeedback, Platform} from 'react-native';
 import { List } from 'immutable';
 import { format, isThisYear, isEqual, isToday, isPast, isSameWeek} from 'date-fns';
 import { LinearGradient } from 'expo';
 
 export default class ListItem extends React.PureComponent {
+  shouldComponentUpdate(nextProps, nextState) {
+    const { selected } = this.props;
+    if (selected !== nextProps.selected) {
+      return true;
+    }
+    return false;
+  }
+
   render() {
-    const { id, weeks, selected } = this.props;
-    const dayHeight = Dimensions.get('window').width / 7;
+    const { id, weeks, selected, onPress } = this.props;
+    const windowWidth = Dimensions.get('window').width;
+    const dayHeight = windowWidth / 7;
 
     return (
-      <View style={[styles.container, selected && styles.selectedContainer, {height: Dimensions.get('window').height}]}>
-        <LinearGradient style={styles.gradient} colors={['rgba(0,0,0,0.05)', 'rgba(0,0,0,0)']}/>
-        <View style={[styles.header, selected && styles.selectedHeader]}>
-          <Text>{isThisYear(id) ? format(id, 'MMMM') : format(id, 'MMM YYYY')}</Text>
-        </View>
-        <View style={styles.month} >
-          {weeks.map((week, index) => (
-            <View style={[styles.week, (index === 0 && styles.firstWeekInMonth), selected && isSameWeek(week.days.first(), selected) && styles.selectedWeek]} key={index}>
-              {week.days.map((day, index) => (
-                <View style={[styles.day, {height: dayHeight}, selected && isEqual(day, selected) && styles.selectedDay]} key={day}>
-                  <Text style={[styles.date, isPast(day) && !isToday(day) && styles.pastDate]}>{format(day,'D')}</Text>
-                </View>
-              ))}
+      <View style={[styles.container, selected && styles.selectedContainer, {height: dayHeight * 7}]}>
+        {!selected && <LinearGradient style={[styles.gradient, {height: dayHeight / 2}]} colors={['rgba(0,0,0,0.125)', 'rgba(0,0,0,0)']}/>}
+        <View style={[styles.header, {height: dayHeight}]}>
+            <View style={[styles.titleContainer, selected && styles.selectedTitleContainer]}>
+              <Text>{isThisYear(id) ? format(id, 'MMMM') : format(id, 'MMM YYYY')}</Text>
             </View>
+        </View>
+        <View style={[styles.month]} >
+          {weeks.map((week, index) => (
+            [
+              <View style={[styles.week, (index === 0 && styles.firstWeekInMonth), selected && isSameWeek(week.days.first(), selected) && styles.selectedWeek]} key={index}>
+                {week.days.map((day, index) => (
+                  <TouchableNativeFeedback onPress={((e) => onPress(day))} background={TouchableNativeFeedback.SelectableBackground()} key={day}>
+                    <View style={[styles.day, {height: dayHeight}, selected && isEqual(day, selected) && styles.selectedDay]}>
+                      <Text style={[styles.date, isPast(day) && !isToday(day) && styles.pastDate]}>{format(day,'D')}</Text>
+                    </View>
+                  </TouchableNativeFeedback>                    
+                ))}
+              </View>
+            ]
           ))}
         </View>
       </View>
@@ -35,20 +50,27 @@ export default class ListItem extends React.PureComponent {
 ListItem.propTypes = {
   id: PropTypes.string.isRequired,
   weeks: PropTypes.instanceOf(List).isRequired,
-  selected: PropTypes.string.isRequired,
+  selected: PropTypes.oneOfType([PropTypes.string, PropTypes.bool]).isRequired,
+  onPress: PropTypes.func.isRequired  
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',    
+    alignItems: 'center',
     justifyContent: 'center',    
     alignSelf: 'stretch',
   },
   selectedContainer: {
-    backgroundColor: '#aa33ee'    
+    backgroundColor: '#aa99ff'
   },
   header: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'stretch',
+  },
+
+  titleContainer: {
     backgroundColor: '#8766ee',
     borderRadius: 100,
     paddingTop: 5,
@@ -56,23 +78,20 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
     paddingRight: 10,
     elevation: 1,
-    marginTop: 16
+  },
+  selectedTitleContainer: {
   },
   selectedHeader: {
-    backgroundColor: '#5733cc'
   },
   gradient: {
     width: '100%',
-    height: 48,
     position: 'absolute',
     top: 0
   },
   sameWeek: {
-    borderColor: 'red',
-    borderWidth: 2
+
   },
   month: {
-    flex: 1,
     alignItems: 'stretch',
     justifyContent: 'center',
     alignSelf: 'stretch',  
@@ -82,8 +101,7 @@ const styles = StyleSheet.create({
     alignSelf: 'stretch',
   },
   selectedWeek: {
-    borderColor: 'red',
-    borderWidth: 2
+
   },
   day: {
     flex: (1 / 7),
@@ -91,7 +109,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',   
   },
   selectedDay: {
-    backgroundColor: '#5733cc'
+    backgroundColor: '#fff'
   },
   date: {},
   pastDate: {
