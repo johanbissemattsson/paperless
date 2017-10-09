@@ -10,6 +10,7 @@ import DocumentButton from '../components/DocumentButton';
 import ContextMenu from '../components/ContextMenu';
 import ListItem from '../components/ListItem';
 import ListItemSeparator from '../components/ListItemSeparator';
+import CameraView from '../components/CameraView';
 import { SELECT_DATE } from '../actionTypes';
 
 class MainScreen extends React.Component {
@@ -95,7 +96,7 @@ class MainScreen extends React.Component {
           getItemLayout={this._getItemLayout}
           keyExtractor={this._keyExtractor}
           initialScrollIndex={this.state.scrollIndex - 1} // subtracting 1 due to https://github.com/facebook/react-native/issues/13202
-          //ItemSeparatorComponent={ListItemSeparator}
+          ItemSeparatorComponent={ListItemSeparator}
           onEndReached={addMonthsAfter}
           //showsVerticalScrollIndicator={false}
           windowSize={12}
@@ -103,6 +104,7 @@ class MainScreen extends React.Component {
           //removeClippedSubviews={true}
           //onEndReachedThreshold={0.1}
         />
+        <CameraView />
         <DocumentButton onPress={this.onDocumentButtonPress}/>
         <ContextMenu />
       </View>

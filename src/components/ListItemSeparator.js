@@ -11,9 +11,8 @@ export default class ListItemSeparator extends React.Component {
 
 const styles = StyleSheet.create({
   container: {
-    width: 320,
     borderTopWidth: 1,
-    borderTopColor: "#ff0000",
+    borderTopColor: "#573399",
     alignSelf: 'stretch', 
   }
 });
