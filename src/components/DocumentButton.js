@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { StyleSheet, Button, View, Text, TouchableNativeFeedback, TouchableOpacity, Platform } from 'react-native';
+import { StyleSheet, Button, View, Text, TouchableNativeFeedback, TouchableOpacity, Platform, Dimensions } from 'react-native';
 import { NavigationActions } from 'react-navigation';
 import { Constants } from 'expo';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -16,20 +16,29 @@ class DocumentButton extends React.Component {
   }
   
   render() {
-    const { onPress} = this.props;
+    const { onPress, cameraBusy } = this.props;
+    const marginBottom = Dimensions.get('window').width / 7;
 
     return (
-    <View style={styles.container}>
+    <View style={[styles.container, {marginBottom: marginBottom + 4 }]}>
       {(Platform.OS === 'android') ?
         <TouchableNativeFeedback onPress={onPress} background={TouchableNativeFeedback.SelectableBackgroundBorderless()}>
-          <View style={styles.button}>
-            <MaterialIcons name='add' size={32} color='#8766ee' />
+          <View style={[styles.button, cameraBusy && {backgroundColor: '#8766ee'}]}>
+            {cameraBusy ?
+              <MaterialIcons name='more-horiz' size={24} color='#fff' />
+                :
+              <MaterialIcons name='add' size={32} color='#8766ee' />
+            }
           </View>
         </TouchableNativeFeedback>
         :
         <TouchableHighlight onPress={onPress}>
-          <View style={styles.button}>
-            <MaterialIcons name='arrow-up' size={24} color='#ffffff' />
+          <View style={[styles.button, cameraBusy && {backgroundColor: '#8766ee'}]}>
+            {cameraBusy ?
+              <MaterialIcons name='more-horiz' size={24} color='#fff' />
+                :
+              <MaterialIcons name='add' size={32} color='#8766ee' />
+            }
           </View>
         </TouchableHighlight>             
       }
@@ -62,7 +71,6 @@ const styles = StyleSheet.create({
   container: {
     position: 'absolute',
     bottom: 0,
-    marginBottom: Constants.statusBarHeight,
     flex: 1,
     alignItems: 'center',    
     justifyContent: 'center',
@@ -70,7 +78,8 @@ const styles = StyleSheet.create({
     elevation: 1,
     width: 64,
     height: 64,
-    borderRadius: 64,    
+    borderRadius: 64,
+    zIndex: 100
     
   },
   button: {

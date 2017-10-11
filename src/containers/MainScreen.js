@@ -1,6 +1,6 @@
 import React from 'react';
-import { StyleSheet, Text, View, Button, VirtualizedList, Dimensions } from 'react-native';
-import { Constants } from 'expo';
+import { StyleSheet, Text, View, Button, VirtualizedList, Dimensions, Vibration } from 'react-native';
+import { Camera, FileSystem, Permissions, Constants } from 'expo';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { format, differenceInCalendarWeeks, eachDay, startOfMonth, endOfMonth, startOfWeek, endOfWeek, getDaysInMonth, setDate, getISOWeek, isSameWeek, addWeeks, isThisYear, isThisMonth, isSameMonth, getDay } from 'date-fns';
@@ -10,7 +10,6 @@ import DocumentButton from '../components/DocumentButton';
 import ContextMenu from '../components/ContextMenu';
 import ListItem from '../components/ListItem';
 import ListItemSeparator from '../components/ListItemSeparator';
-import CameraView from '../components/CameraView';
 import { SELECT_DATE } from '../actionTypes';
 
 class MainScreen extends React.Component {
@@ -20,6 +19,10 @@ class MainScreen extends React.Component {
     const { calendar } = props;
     this.state = {
       scrollIndex: calendar.get('months').findIndex(item => item === format(calendar.get('selected'), 'YYYY-MM')),
+      hasCameraPermission: null,
+      type: Camera.Constants.Type.back,
+      cameraBusy: false,
+      images: List()
     };
   }
 
@@ -60,19 +63,34 @@ class MainScreen extends React.Component {
         }
         selected={isSameMonth(item, selected) && selected}
         onPress={this.onDatePress}
+        images={this.state.images}
       />
     )
   })
 
-  onDocumentButtonPress = (() => {
-    const { calendar } = this.props;
-    this.refList.scrollToIndex({animated: true, viewPosition: 0.5, index: calendar.get('months').findIndex(item => item === format(new Date(), 'YYYY-MM'))});
-  })
+  onDocumentButtonPress = async () => {
+    const { images } = this.state;
+
+    if (this.refCamera && !this.state.cameraBusy) {
+      this.setState({cameraBusy: true});      
+      Vibration.vibrate();
+      this.refCamera.takePictureAsync().then(data => {
+        this.setState({cameraBusy: false, images: images.push(data)}); 
+        //this.props.dispatch(takePhoto(data));         
+        Vibration.vibrate();
+      })
+    }
+  }
 
   onDatePress = ((day) => {
     const { selectDate } = this.props;
     selectDate(day);
   })
+
+  async componentWillMount() {
+    const { status } = await Permissions.askAsync(Permissions.CAMERA);
+    this.setState({ hasCameraPermission: status === 'granted' });
+  }
 
   componentDidMount() {
     //setTimeout(() => {this.refList.scrollToIndex({animated: true, viewPosition: 0.5, index: this.state.scrollIndex}), 300});
@@ -80,7 +98,10 @@ class MainScreen extends React.Component {
 
   render() {  
     const { calendar, addMonthsAfter } = this.props;
-
+    const { hasCameraPermission } = this.state;    
+    const cameraWidth = Dimensions.get('window').width;
+    const cameraHeight = Dimensions.get('window').height;
+    
     return (
       <View style={styles.container}>
         <VirtualizedList
@@ -104,8 +125,20 @@ class MainScreen extends React.Component {
           //removeClippedSubviews={true}
           //onEndReachedThreshold={0.1}
         />
-        <CameraView />
-        <DocumentButton onPress={this.onDocumentButtonPress}/>
+        { hasCameraPermission === null 
+          ? <View/>
+          : (hasCameraPermission === false
+            ? <Text>No access to camera</Text>
+            : <View style={styles.cameraContainer}>
+                <Camera
+                  style={[styles.camera, {width: cameraWidth, height: cameraHeight}]}
+                  ref={node => {this.refCamera = node;}}
+                  type={this.state.type}
+                />
+              </View>
+            )
+        }
+        <DocumentButton onPress={this.onDocumentButtonPress} cameraBusy={this.state.cameraBusy}/>
         <ContextMenu />
       </View>
     );
@@ -140,7 +173,13 @@ const styles = StyleSheet.create({
     alignSelf: 'stretch',
   },
   listContentContainer: {
-  }
+  },
+  cameraContainer: {
+    position: 'absolute',
+    zIndex: -1
+  },
+  camera: {
+  },  
 });
 
 /*
