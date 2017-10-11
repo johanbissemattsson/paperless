@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { StyleSheet, Text, View, Dimensions, TouchableNativeFeedback, Platform, ScrollView, Image, } from 'react-native';
+import { StyleSheet, Text, View, Dimensions, TouchableNativeFeedback, Platform, ScrollView, Image, VirtualizedList} from 'react-native';
 import { List } from 'immutable';
 import { format, isThisYear, isEqual, isToday, isPast, isSameWeek, isAfter} from 'date-fns';
 import { LinearGradient, Constants } from 'expo';
@@ -14,21 +14,47 @@ export default class ListItem extends React.Component {
     )
   });
 
+
+  _keyExtractor = (item, index) => index;
+  _getItem = (items, index) => {/* console.log('HEJEJEJEJEJE: ',items.get(index)); */ return items.get(index)};
+  _getItemCount = (items) => (items.size || 0);
+  _renderItem = (({item, index}) => {
+    return (
+      <Image style={styles.image} source={{uri: item.uri}} key={index} />
+    )
+  })  
+
   _renderDocumentOverlay = (() => {
     const { documents, currentDocument } = this.props;
-    
     return (
-      <View style = {[styles.documentOverlay]}>
-        <ScrollView horizontal={true} pagingEnabled={true}>
+      <View style={[styles.documentOverlay]}>
           {documents.map((documentItem, index) => {
-            const images = documentItem.get('images');
-            return [
-              images.map((imageItem, index) => (
-                <Image style={styles.image} source={{uri: imageItem.uri}} key={index} />
-              ))
-            ]}
-          )}
-        </ScrollView>
+            /*
+            return(
+              <ScrollView key={index} style={styles.pageList}>
+                {[documentItem.get('pages').map((pageItem, indexa) => (
+                  <Image style={styles.image} source={{uri: pageItem.uri}} key={indexa} />
+                ))]}
+              </ScrollView>              
+            );
+            */
+            return (
+              <VirtualizedList
+                ref={node => this.refPageList = node}
+                style={styles.pageList}
+                contentContainerStyle={styles.pageListContentContainer}
+                ListFooterComponent={(<Text>Footer</Text>)}        
+                ListHeaderComponent={(<Text>Header</Text>)}
+                data={documentItem.get('pages')}
+                renderItem={this._renderItem}
+                getItem={this._getItem}
+                getItemCount={this._getItemCount}
+                keyExtractor={this._keyExtractor}
+                key={index}
+                horizontal={true}
+              />
+            )
+          })}
       </View>            
     )
   });
@@ -167,5 +193,7 @@ const styles = StyleSheet.create({
   image: {
     width: 200,
     height: 100
-  }
+  },
+  documentList: {height: 500},
+  pageList: {height:500}
 });

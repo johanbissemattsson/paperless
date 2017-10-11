@@ -24,7 +24,7 @@ class MainScreen extends React.Component {
       cameraBusy: false,
       documentsInSelected: List.of( // Documents in selected (not yet synced)
         Map({
-          images: List(),
+          pages: List(),
         })
       ),
       currentDocument: 0,      
@@ -81,7 +81,7 @@ class MainScreen extends React.Component {
       this.setState({cameraBusy: true});      
       Vibration.vibrate();
       this.refCamera.takePictureAsync().then(data => {
-        this.setState({cameraBusy: false, documentsInSelected: documentsInSelected.updateIn([currentDocument,'images'], list => list.push(data))});
+        this.setState({cameraBusy: false, documentsInSelected: documentsInSelected.updateIn([currentDocument,'pages'], list => list.push(data))});
         //this.props.dispatch(takePhoto(data));         
         Vibration.vibrate();
       })
