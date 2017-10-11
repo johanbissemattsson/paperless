@@ -15,34 +15,38 @@ export default class ListItem extends React.Component {
   });
 
   _renderDocumentOverlay = (() => {
-    const images = this.props.images.toArray();
+    const { documents, currentDocument } = this.props;
+    
     return (
       <View style = {[styles.documentOverlay]}>
         <ScrollView horizontal={true} pagingEnabled={true}>
-          {images.map((item, index) => {
-            return (
-              <Image style={styles.image} source={{uri: item.uri}} key={index} />
-            )
-          })}
+          {documents.map((documentItem, index) => {
+            const images = documentItem.get('images');
+            return [
+              images.map((imageItem, index) => (
+                <Image style={styles.image} source={{uri: imageItem.uri}} key={index} />
+              ))
+            ]}
+          )}
         </ScrollView>
       </View>            
     )
   });
 
   shouldComponentUpdate(nextProps, nextState) {
-    const { selected, images } = this.props;
+    const { selected, documents } = this.props;
     if (selected !== nextProps.selected) {
       console.log("render because of selected");
       return true;      
-    } else if (!images.equals(nextProps.images)) {
-      console.log("render because of images");
+    } else if (selected && !documents.equals(nextProps.documents)) {
+      console.log("render because of documents");
       return true;    
     }
     return false;
   }
 
   render() {
-    const { id, weeks, selected, onPress, images } = this.props;
+    const { id, weeks, selected, onPress, documents } = this.props;
     const windowWidth = Dimensions.get('window').width;
     const dayHeight = Math.round(windowWidth / 7);
     return (
@@ -55,7 +59,7 @@ export default class ListItem extends React.Component {
         <View style={[styles.month]} >
           {weeks.map((week, index) => (
             [
-              selected && isSameWeek(week.days.first(), selected) && !images.isEmpty() && (
+              selected && isSameWeek(week.days.first(), selected) && /* !documents.isEmpty() && */ (
                 this._renderDocumentOverlay()
               ),
               selected && isSameWeek(week.days.first(), selected) && (

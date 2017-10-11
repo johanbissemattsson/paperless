@@ -22,7 +22,12 @@ class MainScreen extends React.Component {
       hasCameraPermission: null,
       type: Camera.Constants.Type.back,
       cameraBusy: false,
-      images: List()
+      documentsInSelected: List.of( // Documents in selected (not yet synced)
+        Map({
+          images: List(),
+        })
+      ),
+      currentDocument: 0,      
     };
   }
 
@@ -48,6 +53,7 @@ class MainScreen extends React.Component {
   }
   _renderItem = (({item}) => {
     const { calendar } = this.props;
+    const { documentsInSelected, currentDocument } = this.state;
     const selected = calendar.get('selected');
     return (
       <ListItem
@@ -63,19 +69,19 @@ class MainScreen extends React.Component {
         }
         selected={isSameMonth(item, selected) && selected}
         onPress={this.onDatePress}
-        images={this.state.images}
+        documents={documentsInSelected}
+        currentDocument={currentDocument}
       />
     )
   })
 
   onDocumentButtonPress = async () => {
-    const { images } = this.state;
-
+    const { documentsInSelected, currentDocument } = this.state;
     if (this.refCamera && !this.state.cameraBusy) {
       this.setState({cameraBusy: true});      
       Vibration.vibrate();
       this.refCamera.takePictureAsync().then(data => {
-        this.setState({cameraBusy: false, images: images.push(data)}); 
+        this.setState({cameraBusy: false, documentsInSelected: documentsInSelected.updateIn([currentDocument,'images'], list => list.push(data))});
         //this.props.dispatch(takePhoto(data));         
         Vibration.vibrate();
       })
