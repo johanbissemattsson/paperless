@@ -93,6 +93,34 @@ class MainScreen extends React.Component {
     selectDate(day);
   })
 
+  onAuthenticateButtonPress = (() => {
+    console.log('Authenticate!!!');
+    this.signInWithGoogleAsync();
+  })
+
+  async signInWithGoogleAsync() {
+    try {
+      const result = await Expo.Google.logInAsync({
+        androidClientId: '151927789985-leocgk0o5gp2l26fcj2e2luuunranvqj.apps.googleusercontent.com',
+        iosClientId: '151927789985-leocgk0o5gp2l26fcj2e2luuunranvqj.apps.googleusercontent.com',
+        scopes: ['profile', 'email', 'https://www.googleapis.com/auth/calendar', 'https://www.googleapis.com/auth/drive.file'],
+      });
+  
+      if (result.type === 'success') {
+        console.log('success!!!');
+        console.log(result);
+        
+        return result.accessToken;
+      } else {
+        console.log('cancelled!!!');
+        return {cancelled: true};
+      }
+    } catch(e) {
+      console.log('error!!!');      
+      return {error: true};
+    }
+  }
+
   async componentWillMount() {
     const { status } = await Permissions.askAsync(Permissions.CAMERA);
     this.setState({ hasCameraPermission: status === 'granted' });
@@ -100,6 +128,8 @@ class MainScreen extends React.Component {
 
   componentDidMount() {
     //setTimeout(() => {this.refList.scrollToIndex({animated: true, viewPosition: 0.5, index: this.state.scrollIndex}), 300});
+    //console.log(this.refList);
+    //this.refList.setNestedScrollingEnabled(true);
   }
 
   render() {  
@@ -144,6 +174,7 @@ class MainScreen extends React.Component {
               </View>
             )
         }
+        <Button onPress={this.onAuthenticateButtonPress} title='Sign in' color='#841584' accessibilityLabel='Sign in with Google' />
         <DocumentButton onPress={this.onDocumentButtonPress} cameraBusy={this.state.cameraBusy}/>
         <ContextMenu />
       </View>
