@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { format, differenceInCalendarWeeks, eachDay, startOfMonth, endOfMonth, startOfWeek, endOfWeek, getDaysInMonth, setDate, getISOWeek, isSameWeek, addWeeks, isThisYear, isThisMonth, isSameMonth, getDay } from 'date-fns';
 import { Map, List, Seq } from 'immutable';
+import Frisbee from 'frisbee';
 
 import DocumentButton from '../components/DocumentButton';
 import ContextMenu from '../components/ContextMenu';
@@ -93,11 +94,13 @@ class MainScreen extends React.Component {
     selectDate(day);
   })
 
-  onAuthenticateButtonPress = (() => {
+  onAuthenticateButtonPress = async () => {
     console.log('Authenticate!!!');
-    this.signInWithGoogleAsync();
-  })
+    const result = await this.signInWithGoogleAsync(); //flytta till sagas
+    console.log(result);
+  };
 
+  /* flyttas till sagas*/
   async signInWithGoogleAsync() {
     try {
       const result = await Expo.Google.logInAsync({
@@ -106,17 +109,12 @@ class MainScreen extends React.Component {
         scopes: ['profile', 'email', 'https://www.googleapis.com/auth/calendar', 'https://www.googleapis.com/auth/drive.file'],
       });
   
-      if (result.type === 'success') {
-        console.log('success!!!');
-        console.log(result);
-        
+      if (result.type === 'success') {   
         return result.accessToken;
       } else {
-        console.log('cancelled!!!');
         return {cancelled: true};
       }
     } catch(e) {
-      console.log('error!!!');      
       return {error: true};
     }
   }

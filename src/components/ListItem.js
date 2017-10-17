@@ -43,7 +43,7 @@ export default class ListItem extends React.Component {
                 ref={node => this.refPageList = node}
                 style={styles.pageList}
                 contentContainerStyle={styles.pageListContentContainer}
-                ListFooterComponent={(<Text>Footer</Text>)}        
+                ListFooterComponent={(<Text>Footer</Text>)}
                 ListHeaderComponent={(<Text>Header</Text>)}
                 data={documentItem.get('pages')}
                 renderItem={this._renderItem}
@@ -51,13 +51,17 @@ export default class ListItem extends React.Component {
                 getItemCount={this._getItemCount}
                 keyExtractor={this._keyExtractor}
                 key={index}
-                horizontal={true}
+                //horizontal={true}
               />
             )
           })}
       </View>            
     )
   });
+
+  componentDidMount() {
+    //this.refPageList.setNestedScrollingEnabled(true);
+  }
 
   shouldComponentUpdate(nextProps, nextState) {
     const { selected, documents } = this.props;
@@ -195,5 +199,5 @@ const styles = StyleSheet.create({
     height: 100
   },
   documentList: {height: 500},
-  pageList: {height:500}
+  pageList: {height:300}
 });
