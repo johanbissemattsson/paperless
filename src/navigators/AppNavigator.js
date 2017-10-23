@@ -26,7 +26,13 @@ const routeConfigs = {
 };
 
 const StackNavigatorConfig = {
-
+  //headerMode: 'none'
+  /*
+  cardStyle:{
+    backgroundColor: 'transparent',
+    opacity: 1,
+  }
+  */
 }
 
 export const AppNavigator = StackNavigator(routeConfigs, StackNavigatorConfig);
