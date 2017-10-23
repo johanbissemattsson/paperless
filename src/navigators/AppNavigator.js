@@ -26,10 +26,10 @@ const routeConfigs = {
 };
 
 const StackNavigatorConfig = {
-  //headerMode: 'none' 
+
 }
 
-export const AppNavigator = StackNavigator(routeConfigs,StackNavigatorConfig);
+export const AppNavigator = StackNavigator(routeConfigs, StackNavigatorConfig);
 
 class AppWithNavigationState extends React.Component {
     componentDidMount() {
