@@ -11,7 +11,7 @@ import CalendarListItemSeparator from '../components/CalendarListItemSeparator';
 
 import { SELECT_DATE } from '../actionTypes';
 
-class CalendarView extends React.Component {
+class CalendarView extends React.PureComponent {
   constructor(props, context) {
     super(props, context);
 
@@ -41,6 +41,7 @@ class CalendarView extends React.Component {
     const { calendar } = this.props;
     const { documentsInSelected, currentDocument } = this.state;
     const selected = calendar.get('selected');
+    console.log(item);
     return (
       <CalendarListItem
         id={item}
@@ -60,6 +61,8 @@ class CalendarView extends React.Component {
   }
 
   _onDatePress = (date) => {
+    //this.refList.scrollToIndex({animated: true, viewPosition: 0.5, index: (getDate(date) - 1)});
+    this.refList.scrollToItem({animated: true, item: format(date, 'YYYY-MM')})
     const { selectDate } = this.props;
     selectDate(date);
   }

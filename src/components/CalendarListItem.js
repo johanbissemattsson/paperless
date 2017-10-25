@@ -9,7 +9,7 @@ export default class CalendarListItem extends React.Component {
   shouldComponentUpdate(nextProps, nextState) { 
     const { selected } = this.props; 
     if (selected !== nextProps.selected) { 
-      console.log("update because of selected", selected);
+      console.log("update because of selected", nextProps.selected);
       return true;
     } else {
       return false;
