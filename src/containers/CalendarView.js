@@ -41,7 +41,6 @@ class CalendarView extends React.PureComponent {
     const { calendar } = this.props;
     const { documentsInSelected, currentDocument } = this.state;
     const selected = calendar.get('selected');
-    console.log(item);
     return (
       <CalendarListItem
         id={item}
