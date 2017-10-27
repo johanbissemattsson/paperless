@@ -1,12 +1,12 @@
 import React from 'react';
-import { StyleSheet, Text, View, VirtualizedList, Dimensions } from 'react-native';
+import { StyleSheet, Text, View, VirtualizedList, Dimensions, findNodeHandle } from 'react-native';
 import { Constants } from 'expo';
 import { connect } from 'react-redux';
 import { format, differenceInCalendarWeeks, eachDay, startOfMonth, endOfMonth, startOfWeek, endOfWeek, getDaysInMonth, setDate, getISOWeek, isSameWeek, addWeeks, isThisYear, isThisMonth, isSameMonth, getDay } from 'date-fns';
 import { Map, List, Seq } from 'immutable';
 import { NavigationActions } from 'react-navigation';
 
-import CalendarListItem from '../components/CalendarListItem';
+import CalendarListMonth from '../components/CalendarListMonth';
 import CalendarListItemSeparator from '../components/CalendarListItemSeparator';
 
 import { SELECT_DATE } from '../actionTypes';
@@ -28,9 +28,10 @@ class CalendarView extends React.PureComponent {
     const { calendar } = this.props;
     const weeksInMonth = differenceInCalendarWeeks(endOfMonth(data.get(index)), startOfMonth(data.get(index))) + 2;
     const windowWidth = Dimensions.get('window').width;
-    const dayHeight = Dimensions.get('window').width / 7;
+    const dayHeight = Math.round(Dimensions.get('window').width / 7);
     const indexOfSelected = calendar.get('months').findIndex(item => item === format(new Date(), 'YYYY-MM'));
     const itemLength = 7 * dayHeight;
+
     return ({
       length: itemLength, // + (index === indexOfSelected) && windowWidth,
       offset: itemLength * index, //+ (index > indexOfSelected) && windowWidth,
@@ -41,8 +42,10 @@ class CalendarView extends React.PureComponent {
     const { calendar } = this.props;
     const { documentsInSelected, currentDocument } = this.state;
     const selected = calendar.get('selected');
+    const dayHeight = Math.round(Dimensions.get('window').width / 7);
+    
     return (
-      <CalendarListItem
+      <CalendarListMonth
         id={item}
         weeks={List(new Array(differenceInCalendarWeeks(endOfMonth(item), startOfMonth(item)) + 1))
           .map((_,week) => (
@@ -54,14 +57,18 @@ class CalendarView extends React.PureComponent {
           ))
         }
         selected={isSameMonth(item, selected) && selected}
-        onPress={this._onDatePress}
+        onDatePress={this._onDatePress}
+        dayHeight={dayHeight}
       />
     )
   }
 
-  _onDatePress = (date) => {
-    //this.refList.scrollToIndex({animated: true, viewPosition: 0.5, index: (getDate(date) - 1)});
-    this.refList.scrollToItem({animated: true, item: format(date, 'YYYY-MM')})
+  _onDatePress = (date, refCalendarListDay) => {     
+    refCalendarListDay.measureLayout(
+      findNodeHandle(this.refList),
+      (x, y, width, height) => {console.log(x, y, width, height); this.refList.scrollToOffset({animated: true, offset: Math.round(y)})}
+    );
+    
     const { selectDate } = this.props;
     selectDate(date);
   }
@@ -120,5 +127,8 @@ const styles = StyleSheet.create({
   list: {
     flex: 1,
     alignSelf: 'stretch',
+  },
+  listContentContainer: {
+
   }
 });
