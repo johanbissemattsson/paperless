@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 
-export default class CalendarListItemSeparator extends React.Component {
+export default class CalendarListMonthSeparator extends React.Component {
   render() {
     return (
       <View style={styles.container} />

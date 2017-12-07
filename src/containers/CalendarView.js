@@ -7,7 +7,7 @@ import { Map, List, Seq } from 'immutable';
 import { NavigationActions } from 'react-navigation';
 
 import CalendarListMonth from '../components/CalendarListMonth';
-import CalendarListItemSeparator from '../components/CalendarListItemSeparator';
+import CalendarListMonthSeparator from '../components/CalendarListMonthSeparator';
 
 import { SELECT_DATE } from '../actionTypes';
 
@@ -17,7 +17,8 @@ class CalendarView extends React.PureComponent {
 
     const { calendar } = props;
     this.state = {
-      scrollIndex: calendar.get('months').findIndex(item => item === format(calendar.get('selected'), 'YYYY-MM'))      
+      scrollIndex: calendar.get('months').findIndex(item => item === format(calendar.get('selected'), 'YYYY-MM')),
+      dayHeight: Math.round(Dimensions.get('window').width / 7)
     };
   }
 
@@ -26,23 +27,22 @@ class CalendarView extends React.PureComponent {
   _getItemCount = (items) => (items.size || 0);
   _getItemLayout = (data, index) => {
     const { calendar } = this.props;
+    const { dayHeight } = this.state;
     const weeksInMonth = differenceInCalendarWeeks(endOfMonth(data.get(index)), startOfMonth(data.get(index))) + 2;
-    const windowWidth = Dimensions.get('window').width;
-    const dayHeight = Math.round(Dimensions.get('window').width / 7);
     const indexOfSelected = calendar.get('months').findIndex(item => item === format(new Date(), 'YYYY-MM'));
     const itemLength = 7 * dayHeight;
 
     return ({
-      length: itemLength, // + (index === indexOfSelected) && windowWidth,
-      offset: itemLength * index, //+ (index > indexOfSelected) && windowWidth,
+      length: itemLength,
+      offset: itemLength * index,
       index: index
     })
   }
-  _renderItem = ({item}) => { ///////<----- why error when removing måsvingar
+  _renderItem = ({item}) => {
     const { calendar } = this.props;
+    const { dayHeight } = this.state;    
     const { documentsInSelected, currentDocument } = this.state;
     const selected = calendar.get('selected');
-    const dayHeight = Math.round(Dimensions.get('window').width / 7);
     
     return (
       <CalendarListMonth
@@ -90,7 +90,7 @@ class CalendarView extends React.PureComponent {
           getItemLayout={this._getItemLayout}
           keyExtractor={this._keyExtractor}
           initialScrollIndex={this.state.scrollIndex - 1} // subtracting 1 due to https://github.com/facebook/react-native/issues/13202
-          ItemSeparatorComponent={CalendarListItemSeparator}
+          ItemSeparatorComponent={CalendarListMonthSeparator}
           onEndReached={addMonthsAfter}
           //showsVerticalScrollIndicator={false}
           windowSize={12}
