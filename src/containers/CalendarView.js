@@ -18,7 +18,9 @@ class CalendarView extends React.PureComponent {
     const { calendar } = props;
     this.state = {
       scrollIndex: calendar.get('months').findIndex(item => item === format(calendar.get('selected'), 'YYYY-MM')),
-      dayHeight: Math.round(Dimensions.get('window').width / 7)
+      dayHeight: Math.round(Dimensions.get('window').width / 7),
+      onEndReachedCalledDuringMomentum: false,
+      scrolling: false,
     };
   }
 
@@ -29,21 +31,20 @@ class CalendarView extends React.PureComponent {
     const { calendar } = this.props;
     const { dayHeight } = this.state;
     const weeksInMonth = differenceInCalendarWeeks(endOfMonth(data.get(index)), startOfMonth(data.get(index))) + 2;
-    const indexOfSelected = calendar.get('months').findIndex(item => item === format(new Date(), 'YYYY-MM'));
-    const itemLength = 7 * dayHeight;
-
-    return ({
+    const itemLength = 7 * dayHeight + 1; // adding 1 due to separator height (probably better if height of separator is calculated instead)
+    return {
       length: itemLength,
       offset: itemLength * index,
       index: index
-    })
+    }
   }
   _renderItem = ({item}) => {
     const { calendar } = this.props;
-    const { dayHeight } = this.state;    
-    const { documentsInSelected, currentDocument } = this.state;
+    const { dayHeight, scrolling } = this.state;
+    const { viewableItems, documentsInSelected, currentDocument } = this.state;
     const selected = calendar.get('selected');
-    
+    const isVisible = viewableItems ? viewableItems.some((object) => object.item === item) : true; // treat all items as visible initially (isVisible is mainly for new items)
+
     return (
       <CalendarListMonth
         id={item}
@@ -59,6 +60,8 @@ class CalendarView extends React.PureComponent {
         selected={isSameMonth(item, selected) && selected}
         onDatePress={this._onDatePress}
         dayHeight={dayHeight}
+        isVisible={isVisible}
+        scrolling={scrolling}
       />
     )
   }
@@ -73,31 +76,56 @@ class CalendarView extends React.PureComponent {
     selectDate(date);
   }
 
+  _onMomentumScrollBegin = () => {
+    this.setState({scrolling: true, onEndReachedCalledDuringMomentum: false});
+  }
+
+  _onMomentumScrollEnd = () => {
+    this.setState({scrolling: false});
+  }
+
+  _onEndReached = () => {
+    const { addMonthsAfter } = this.props;
+    const { onEndReachedCalledDuringMomentum } = this.state;
+    if (!onEndReachedCalledDuringMomentum) {
+      this.setState({onEndReachedCalledDuringMomentum: true});
+      addMonthsAfter();      
+    }
+  }
+
+  _onViewableItemsChanged = (event) => {
+    this.setState({viewableItems: event.viewableItems});
+  }
+
   render() {
-    const { calendar, addMonthsAfter } = this.props;    
+    const { calendar } = this.props;
+
     return (
       <View style={styles.container}>
         <VirtualizedList
           ref={node => this.refList = node}
           style={styles.list}
           contentContainerStyle={styles.listContentContainer}
-          ListFooterComponent={(<Text>Bottom</Text>)}        
+          ListFooterComponent={(<View style={{backgroundColor: '#8766ee' }}><Text>Bottom</Text></View>)}        
           ListHeaderComponent={(<Text>Top</Text>)}
           data={calendar.get('months')}
           renderItem={this._renderItem}
+          extraData={this.state}
           getItem={this._getItem}
           getItemCount={this._getItemCount}
           getItemLayout={this._getItemLayout}
           keyExtractor={this._keyExtractor}
           initialScrollIndex={this.state.scrollIndex - 1} // subtracting 1 due to https://github.com/facebook/react-native/issues/13202
           ItemSeparatorComponent={CalendarListMonthSeparator}
-          onEndReached={addMonthsAfter}
+          onEndReached={this._onEndReached}
+          onMomentumScrollBegin={this._onMomentumScrollBegin}
+          onMomentumScrollEnd={this._onMomentumScrollEnd}
+          onViewableItemsChanged={this._onViewableItemsChanged}
           //showsVerticalScrollIndicator={false}
-          windowSize={12}
-          initialNumToRender={6}
-          //removeClippedSubviews={true}
+          //windowSize={12}
+          //initialNumToRender={6}
+          //removeClippedSubviews={false}
           //onEndReachedThreshold={0.1}
-          onScroll={this._onListScroll}
         />
       </View>
     );

@@ -20,7 +20,14 @@ const _initMonthsInList = (date) => (
     .map((_,m) => (
       _formatMonth(addMonths(subMonths(date, initialMonthsBeforeAndAfter ), m))
     ))
-)
+);
+
+const _initAddedMonths = (date) => (
+  List(new Array(amountOfMonthsToAdd))
+  .map((_,m) => (
+    _formatMonth(addMonths(date, m + 1))
+  ))
+);
 
 const initialState = Map({
   months: _initMonthsInList( initialDate ),
@@ -32,23 +39,26 @@ export default calendar = (state = initialState, action) => {
     case SELECT_DATE:
       return state.set('selected', action.date);
     case 'addMonthsBefore':
+      console.log('addMonthsBefore');
       const firstMonth = state.get('months').first();
       return state.update('months', list => (
         list.withMutations((listWithMutations) => {
-          for(let a = 0; a <= amountOfMonthsToAdd; a++) {
+          for(let a = 1; a <= amountOfMonthsToAdd; a++) {
             listWithMutations.unshift(_formatMonth(addMonths(firstMonth, a)))            
           }
         })
       ))    
     case 'addMonthsAfter':
       const lastMonth = state.get('months').last();
-      return state.update('months', list => (
-        list.withMutations((listWithMutations) => {
-          for(let a = 0; a <= amountOfMonthsToAdd; a++) {
+      return state.update('months', list => {
+        const updatedMonthList = list.withMutations((listWithMutations) => {
+          for(let a = 1; a <= amountOfMonthsToAdd; a++) {
             listWithMutations.push(_formatMonth(addMonths(lastMonth, a)))            
           }
-        })
-      ))
+        });
+        //console.log('updatedMonthList: ', updatedMonthList);
+        return updatedMonthList;
+      })
     default:
       return state;
   }

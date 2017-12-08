@@ -10,9 +10,15 @@ import CalendarListDay from './CalendarListDay';
 
 export default class CalendarListMonth extends React.Component {
   shouldComponentUpdate(nextProps, nextState) { 
-    const { selected } = this.props; 
-    if (selected !== nextProps.selected) { 
-      console.log("update because of selected", nextProps.selected);
+    const { selected, id, scrolling, isVisible } = this.props;
+    if (selected !== nextProps.selected) {
+      console.log('update because of selected', selected); 
+      return true;
+    } else if (id !== nextProps.id) {
+      console.log('update because of id', id, '=>', nextPropsId);
+      return true;    
+    } else if (isVisible !== nextProps.isVisible) {
+      console.log('update because of visibility change');
       return true;
     } else {
       return false;
@@ -20,8 +26,8 @@ export default class CalendarListMonth extends React.Component {
   };
   
   render() {
-    const { id, weeks, selected, onDatePress, dayHeight } = this.props;
-    
+    const { id, weeks, selected, onDatePress, dayHeight, isVisible } = this.props;
+
     return (
       <View style={[styles.container, selected && styles.selectedContainer, {minHeight: dayHeight * 7}]}>
         <View style={styles.margin} />
@@ -31,7 +37,7 @@ export default class CalendarListMonth extends React.Component {
           </View>
         </View>
         <View style={[styles.month]} >
-          {weeks.map((week, weekIndex) => (
+          {isVisible && weeks.map((week, weekIndex) => (
             <CalendarListWeek week={week} selected={selected} key={weekIndex}>
               {week.days.map((day, dayIndex) => (
                 <CalendarListDay day={day} selected={selected} dayHeight={dayHeight} onDatePress={onDatePress} key={dayIndex}/>
@@ -50,7 +56,8 @@ CalendarListMonth.propTypes = {
   weeks: PropTypes.instanceOf(List).isRequired,
   selected: PropTypes.oneOfType([PropTypes.string, PropTypes.bool]).isRequired,
   onDatePress: PropTypes.func.isRequired,
-  dayHeight: PropTypes.number  
+  dayHeight: PropTypes.number,
+  scrolling: PropTypes.bool
 };
 
 const styles = StyleSheet.create({
@@ -67,7 +74,7 @@ const styles = StyleSheet.create({
   margin: {
     flex: 1,
     alignSelf: 'stretch',
-    backgroundColor: '#8766ee'    
+    backgroundColor: '#8733ee'    
   },
   marginDay: {
     backgroundColor: '#8766ee'    
