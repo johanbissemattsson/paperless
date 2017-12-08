@@ -9,6 +9,14 @@ import CalendarListWeek from './CalendarListWeek';
 import CalendarListDay from './CalendarListDay';
 
 export default class CalendarListMonth extends React.Component {
+  constructor(props, context) {
+    super(props, context);
+
+    this.state = {
+      initialized: false
+    };
+  }
+
   shouldComponentUpdate(nextProps, nextState) { 
     const { selected, id, scrolling, isVisible } = this.props;
     if (selected !== nextProps.selected) {
@@ -19,6 +27,7 @@ export default class CalendarListMonth extends React.Component {
       return true;    
     } else if (isVisible !== nextProps.isVisible) {
       console.log('update because of visibility change');
+      this.setState({initialized: true});
       return true;
     } else {
       return false;
@@ -27,6 +36,7 @@ export default class CalendarListMonth extends React.Component {
   
   render() {
     const { id, weeks, selected, onDatePress, dayHeight, isVisible } = this.props;
+    const { initialized } = this.state;
 
     return (
       <View style={[styles.container, selected && styles.selectedContainer, {minHeight: dayHeight * 7}]}>
@@ -37,7 +47,7 @@ export default class CalendarListMonth extends React.Component {
           </View>
         </View>
         <View style={[styles.month]} >
-          {isVisible && weeks.map((week, weekIndex) => (
+          {(initialized || isVisible) && weeks.map((week, weekIndex) => (
             <CalendarListWeek week={week} selected={selected} key={weekIndex}>
               {week.days.map((day, dayIndex) => (
                 <CalendarListDay day={day} selected={selected} dayHeight={dayHeight} onDatePress={onDatePress} key={dayIndex}/>
