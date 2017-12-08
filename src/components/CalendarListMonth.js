@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
   margin: {
     flex: 1,
     alignSelf: 'stretch',
-    backgroundColor: '#8733ee'    
+    backgroundColor: '#8755ee'    
   },
   marginDay: {
     backgroundColor: '#8766ee'    
