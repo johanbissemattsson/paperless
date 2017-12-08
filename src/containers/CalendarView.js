@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, Text, View, VirtualizedList, Dimensions, findNodeHandle } from 'react-native';
 import { Constants } from 'expo';
 import { connect } from 'react-redux';
-import { format, differenceInCalendarWeeks, eachDay, startOfMonth, endOfMonth, startOfWeek, endOfWeek, getDaysInMonth, setDate, getISOWeek, isSameWeek, addWeeks, isThisYear, isThisMonth, isSameMonth, getDay } from 'date-fns';
+import { format, differenceInCalendarWeeks, eachDay, startOfMonth, endOfMonth, startOfWeek, endOfWeek, getDaysInMonth, setDate, getISOWeek, isSameWeek, addWeeks, isThisYear, isThisMonth, isSameMonth, getDay, isSameMinute } from 'date-fns';
 import { Map, List, Seq } from 'immutable';
 import { NavigationActions } from 'react-navigation';
 
@@ -20,7 +20,6 @@ class CalendarView extends React.PureComponent {
       scrollIndex: calendar.get('months').findIndex(item => item === format(calendar.get('selected'), 'YYYY-MM')),
       dayHeight: Math.round(Dimensions.get('window').width / 7),
       onEndReachedCalledDuringMomentum: false,
-      scrolling: false,
     };
   }
 
@@ -40,7 +39,7 @@ class CalendarView extends React.PureComponent {
   }
   _renderItem = ({item}) => {
     const { calendar } = this.props;
-    const { dayHeight, scrolling } = this.state;
+    const { dayHeight } = this.state;
     const { viewableItems, documentsInSelected, currentDocument } = this.state;
     const selected = calendar.get('selected');
     const isVisible = viewableItems ? viewableItems.some((object) => object.item === item) : true; // treat all items as visible initially (isVisible is mainly for new items)
@@ -61,7 +60,6 @@ class CalendarView extends React.PureComponent {
         onDatePress={this._onDatePress}
         dayHeight={dayHeight}
         isVisible={isVisible}
-        scrolling={scrolling}
       />
     )
   }
@@ -77,11 +75,7 @@ class CalendarView extends React.PureComponent {
   }
 
   _onMomentumScrollBegin = () => {
-    this.setState({scrolling: true, onEndReachedCalledDuringMomentum: false});
-  }
-
-  _onMomentumScrollEnd = () => {
-    this.setState({scrolling: false});
+    this.setState({onEndReachedCalledDuringMomentum: false}); // prevent onEndReached to be triggered twice
   }
 
   _onEndReached = () => {

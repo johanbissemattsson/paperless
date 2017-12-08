@@ -18,13 +18,10 @@ export default class CalendarListMonth extends React.Component {
   }
 
   shouldComponentUpdate(nextProps, nextState) { 
-    const { selected, id, scrolling, isVisible } = this.props;
+    const { selected, isVisible } = this.props;
     if (selected !== nextProps.selected) {
       console.log('update because of selected', selected); 
       return true;
-    } else if (id !== nextProps.id) {
-      console.log('update because of id', id, '=>', nextPropsId);
-      return true;    
     } else if (isVisible !== nextProps.isVisible) {
       console.log('update because of visibility change');
       this.setState({initialized: true});
