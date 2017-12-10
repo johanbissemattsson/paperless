@@ -43,7 +43,7 @@ export default class CalendarListMonth extends React.Component {
             <Text>{isThisYear(id) ? format(id, 'MMMM') : format(id, 'MMM YYYY')}</Text>
           </View>
         </View>
-        <View style={[styles.month]} >
+        <View style={[styles.month, {minHeight: dayHeight * weeks.size}]} >
           {(initialized || isVisible) && weeks.map((week, weekIndex) => (
             <CalendarListWeek week={week} selected={selected} key={weekIndex}>
               {week.days.map((day, dayIndex) => (
