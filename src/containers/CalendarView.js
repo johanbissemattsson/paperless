@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, Text, View, VirtualizedList, Dimensions, findNodeHandle } from 'react-native';
 import { Constants } from 'expo';
 import { connect } from 'react-redux';
-import { format, differenceInCalendarWeeks, eachDay, startOfMonth, endOfMonth, startOfWeek, endOfWeek, getDaysInMonth, setDate, getISOWeek, isSameWeek, addWeeks, isThisYear, isThisMonth, isSameMonth, getDay, isSameMinute } from 'date-fns';
+import { format, differenceInCalendarWeeks, eachDay, startOfMonth, endOfMonth, isSameWeek, addWeeks, isSameMonth } from 'date-fns';
 import { Map, List, Seq } from 'immutable';
 import { NavigationActions } from 'react-navigation';
 
@@ -29,7 +29,7 @@ class CalendarView extends React.PureComponent {
   _getItemLayout = (data, index) => {
     const { calendar } = this.props;
     const { dayHeight } = this.state;
-    const weeksInMonth = differenceInCalendarWeeks(endOfMonth(data.get(index)), startOfMonth(data.get(index))) + 2;
+    //const weeksInMonth = differenceInCalendarWeeks(endOfMonth(data.get(index)), startOfMonth(data.get(index))) + 2;
     const itemLength = 7 * dayHeight + 1; // adding 1 due to separator height (probably better if height of separator is calculated instead)
     return {
       length: itemLength,
