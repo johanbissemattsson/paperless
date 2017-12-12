@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, Text, View, VirtualizedList, Dimensions, findNodeHandle } from 'react-native';
 import { Constants } from 'expo';
 import { connect } from 'react-redux';
-import { format, differenceInCalendarWeeks, eachDay, startOfMonth, endOfMonth, isSameWeek, addWeeks, isSameMonth } from 'date-fns';
+import { format, differenceInCalendarWeeks, eachDay, startOfMonth, endOfMonth, isSameWeek, addWeeks, isSameMonth, addMonths} from 'date-fns';
 import { Map, List, Seq } from 'immutable';
 import { NavigationActions } from 'react-navigation';
 
@@ -16,10 +16,14 @@ class CalendarView extends React.PureComponent {
     super(props, context);
 
     const { calendar } = props;
+
     this.state = {
       scrollIndex: calendar.get('months').findIndex(item => item === format(calendar.get('selected'), 'YYYY-MM')),
       dayHeight: Math.round(Dimensions.get('window').width / 7),
       onEndReachedCalledDuringMomentum: false,
+      //renderQueue: new List(),
+      viewableItems: new Array,
+      monthsWithRenderedWeeks: new List(),
     };
   }
 
@@ -39,27 +43,32 @@ class CalendarView extends React.PureComponent {
   }
   _renderItem = ({item}) => {
     const { calendar } = this.props;
-    const { dayHeight } = this.state;
-    const { viewableItems, documentsInSelected, currentDocument } = this.state;
+    const { dayHeight, viewableItems, documentsInSelected, currentDocument, monthsWithRenderedWeeks } = this.state;
     const selected = calendar.get('selected');
-    const isVisible = viewableItems ? viewableItems.some((object) => object.item === item) : true; // treat all items as visible initially (isVisible is mainly for new items)
+    const shouldRenderWeeks = (viewableItems.some((entry) => entry.item === item) || monthsWithRenderedWeeks.some((entry) => entry === item));
 
     return (
       <CalendarListMonth
         id={item}
-        weeks={List(new Array(differenceInCalendarWeeks(endOfMonth(item), startOfMonth(item)) + 1))
-          .map((_,week) => (
-            {days: Seq(eachDay(startOfMonth(item),endOfMonth(item))).filter((days) => (
-              isSameWeek(days, addWeeks(item,week))))
-              .map((day) => (format(day, 'YYYY-MM-DD')
+        weeks={
+          List(new Array(differenceInCalendarWeeks(endOfMonth(item), startOfMonth(item)) + 1))
+              .map((_,week) => (
+                {days: Seq(eachDay(startOfMonth(item),endOfMonth(item))).filter((days) => (
+                  isSameWeek(days, addWeeks(item,week))))
+                  .map((day) => (format(day, 'YYYY-MM-DD')
+                  ))
+                }
               ))
-            }
-          ))
         }
         selected={isSameMonth(item, selected) && selected}
         onDatePress={this._onDatePress}
         dayHeight={dayHeight}
-        isVisible={isVisible}
+        shouldRenderWeeks={shouldRenderWeeks}
+        addToMonthsWithRenderedWeeks={this.addToMonthsWithRenderedWeeks}
+        removeFromMonthsWithRenderedWeeks={this.removeFromMonthsWithRenderedWeeks}
+
+        //renderQueue={renderQueue}
+        //updateRenderQueueAfterComponentDidUpdate={this.updateRenderQueueAfterComponentDidUpdate}
       />
     )
   }
@@ -88,12 +97,45 @@ class CalendarView extends React.PureComponent {
   }
 
   _onViewableItemsChanged = (event) => {
-    this.setState({viewableItems: event.viewableItems});
+    const viewableItems = event.viewableItems;
+    const firstViewableMonth = viewableItems[0].item;
+    const lastViewableMonth = viewableItems[viewableItems.length - 1].item;
+
+    viewableItems.map((viewableItem) => {
+      this.addToMonthsWithRenderedWeeks(viewableItem.item);
+    })
+
+    const renderQueue = List().withMutations((listWithMutations) => {
+      for (let renderIndex = 0; renderIndex < 3; renderIndex++) {
+        listWithMutations.push(format(addMonths(lastViewableMonth, renderIndex + 1), 'YYYY-MM'));
+      }  
+    });
+
+    renderQueue.map((month) => {
+      this.addToMonthsWithRenderedWeeks(month.item);
+    })
+
+    this.setState({viewableItems: viewableItems});
+  }
+
+  addToMonthsWithRenderedWeeks = (item) => {
+    const { monthsWithRenderedWeeks } = this.state;
+    if (!monthsWithRenderedWeeks.includes(item)) {
+      console.log('add', item);      
+      this.setState({monthsWithRenderedWeeks: monthsWithRenderedWeeks.push(item)})
+    }
+  }
+
+  removeFromMonthsWithRenderedWeeks = (item) => {
+    const { monthsWithRenderedWeeks } = this.state;
+    console.log('remove', item);
+    this.setState({monthsWithRenderedWeeks: monthsWithRenderedWeeks.filter(month => month != item)})
   }
 
   render() {
     const { calendar } = this.props;
-
+    const { dayHeight, documentsInSelected, currentDocument } = this.state;    
+    //const { renderQueue } = this.state;
     return (
       <View style={styles.container}>
         <VirtualizedList
@@ -115,6 +157,10 @@ class CalendarView extends React.PureComponent {
           onMomentumScrollBegin={this._onMomentumScrollBegin}
           onMomentumScrollEnd={this._onMomentumScrollEnd}
           onViewableItemsChanged={this._onViewableItemsChanged}
+          windowSize={12}
+          initialNumToRender={12}
+          //maxToRenderPerBatch={32}
+          //renderQueue={renderQueue}
           //showsVerticalScrollIndicator={false}
           //windowSize={12}
           //initialNumToRender={6}

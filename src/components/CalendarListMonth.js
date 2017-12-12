@@ -18,21 +18,24 @@ export default class CalendarListMonth extends React.Component {
   }
 
   shouldComponentUpdate(nextProps, nextState) { 
-    const { selected, isVisible } = this.props;
+    const { id, selected, shouldRenderWeeks } = this.props;
+
     if (selected !== nextProps.selected) {
-      console.log('update because of selected', selected); 
       return true;
-    } else if (isVisible !== nextProps.isVisible) {
-      console.log('update because of visibility change');
-      this.setState({initialized: true});
+    } else if (shouldRenderWeeks !== nextProps.shouldRenderWeeks) {
       return true;
     } else {
       return false;
     }
   };
+
+  componentWillUnmount() {
+    const { id, removeFromMonthsWithRenderedWeeks } = this.props;
+    removeFromMonthsWithRenderedWeeks(id);
+  }
   
   render() {
-    const { id, weeks, selected, onDatePress, dayHeight, isVisible } = this.props;
+    const { id, weeks, selected, onDatePress, dayHeight, shouldRenderWeeks } = this.props;
     const { initialized } = this.state;
 
     return (
@@ -44,7 +47,7 @@ export default class CalendarListMonth extends React.Component {
           </View>
         </View>
         <View style={[styles.month, {minHeight: dayHeight * weeks.size}]} >
-          {(initialized || isVisible) && weeks.map((week, weekIndex) => (
+          {shouldRenderWeeks && weeks.map((week, weekIndex) => (
             <CalendarListWeek week={week} selected={selected} key={weekIndex}>
               {week.days.map((day, dayIndex) => (
                 <CalendarListDay day={day} selected={selected} dayHeight={dayHeight} onDatePress={onDatePress} key={dayIndex}/>
