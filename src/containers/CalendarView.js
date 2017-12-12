@@ -21,7 +21,6 @@ class CalendarView extends React.PureComponent {
       scrollIndex: calendar.get('months').findIndex(item => item === format(calendar.get('selected'), 'YYYY-MM')),
       dayHeight: Math.round(Dimensions.get('window').width / 7),
       onEndReachedCalledDuringMomentum: false,
-      //renderQueue: new List(),
       viewableItems: new Array,
       monthsWithRenderedWeeks: new List(),
     };

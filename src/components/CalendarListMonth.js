@@ -9,14 +9,6 @@ import CalendarListWeek from './CalendarListWeek';
 import CalendarListDay from './CalendarListDay';
 
 export default class CalendarListMonth extends React.Component {
-  constructor(props, context) {
-    super(props, context);
-
-    this.state = {
-      initialized: false
-    };
-  }
-
   shouldComponentUpdate(nextProps, nextState) { 
     const { id, selected, shouldRenderWeeks } = this.props;
 
@@ -36,7 +28,6 @@ export default class CalendarListMonth extends React.Component {
   
   render() {
     const { id, weeks, selected, onDatePress, dayHeight, shouldRenderWeeks } = this.props;
-    const { initialized } = this.state;
 
     return (
       <View style={[styles.container, selected && styles.selectedContainer, {minHeight: dayHeight * 7}]}>
@@ -69,7 +60,8 @@ CalendarListMonth.propTypes = {
   selected: PropTypes.oneOfType([PropTypes.string, PropTypes.bool]).isRequired,
   onDatePress: PropTypes.func.isRequired,
   dayHeight: PropTypes.number,
-  scrolling: PropTypes.bool
+  shouldRenderWeeks: PropTypes.bool,  
+  removeFromMonthsWithRenderedWeeks: PropTypes.func.isRequired,
 };
 
 const styles = StyleSheet.create({
