@@ -23,6 +23,7 @@ class CalendarView extends React.PureComponent {
       onEndReachedCalledDuringMomentum: false,
       viewableItems: new Array,
       monthsWithRenderedWeeks: new List(),
+      renderQueue: new List()
     };
   }
 
@@ -42,10 +43,10 @@ class CalendarView extends React.PureComponent {
   }
   _renderItem = ({item}) => {
     const { calendar } = this.props;
-    const { dayHeight, viewableItems, documentsInSelected, currentDocument, monthsWithRenderedWeeks } = this.state;
+    const { dayHeight, viewableItems, documentsInSelected, currentDocument, monthsWithRenderedWeeks, renderQueue } = this.state;
     const selected = calendar.get('selected');
-    const shouldRenderWeeks = (viewableItems.some((entry) => entry.item === item) || monthsWithRenderedWeeks.some((entry) => entry === item));
-
+    const shouldRenderWeeks = (viewableItems.some((entry) => entry.item === item) || monthsWithRenderedWeeks.some((entry) => entry === item) || (renderQueue.first() === item));
+    
     return (
       <CalendarListMonth
         id={item}
@@ -65,7 +66,7 @@ class CalendarView extends React.PureComponent {
         shouldRenderWeeks={shouldRenderWeeks}
         addToMonthsWithRenderedWeeks={this.addToMonthsWithRenderedWeeks}
         removeFromMonthsWithRenderedWeeks={this.removeFromMonthsWithRenderedWeeks}
-
+        onMonthRenderedWithWeeks={this.onMonthRenderedWithWeeks}
         //renderQueue={renderQueue}
         //updateRenderQueueAfterComponentDidUpdate={this.updateRenderQueueAfterComponentDidUpdate}
       />
@@ -96,6 +97,8 @@ class CalendarView extends React.PureComponent {
   }
 
   _onViewableItemsChanged = (event) => {
+    const { renderQueue } = this.state;
+
     const viewableItems = event.viewableItems;
     const firstViewableMonth = viewableItems[0].item;
     const lastViewableMonth = viewableItems[viewableItems.length - 1].item;
@@ -104,17 +107,15 @@ class CalendarView extends React.PureComponent {
       this.addToMonthsWithRenderedWeeks(viewableItem.item);
     })
 
-    const renderQueue = List().withMutations((listWithMutations) => {
+    const newRenderQueue = List().withMutations((listWithMutations) => {
       for (let renderIndex = 0; renderIndex < 3; renderIndex++) {
         listWithMutations.push(format(addMonths(lastViewableMonth, renderIndex + 1), 'YYYY-MM'));
       }  
     });
 
-    renderQueue.map((month) => {
-      this.addToMonthsWithRenderedWeeks(month.item);
-    })
+    console.log('newRenderQueue', newRenderQueue);
 
-    this.setState({viewableItems: viewableItems});
+    this.setState({viewableItems: viewableItems, renderQueue: newRenderQueue});
   }
 
   addToMonthsWithRenderedWeeks = (item) => {
@@ -129,6 +130,29 @@ class CalendarView extends React.PureComponent {
     const { monthsWithRenderedWeeks } = this.state;
     console.log('remove', item);
     this.setState({monthsWithRenderedWeeks: monthsWithRenderedWeeks.filter(month => month != item)})
+  }
+
+  onMonthRenderedWithWeeks = (item) => {
+    const { monthsWithRenderedWeeks, renderQueue } = this.state;
+    const updatedRenderQueue = renderQueue.filter((entry) => entry != item);
+    this.setState({renderQueue: updatedRenderQueue});
+    console.log('updatedRenderQueue', updatedRenderQueue);
+    this.addToMonthsWithRenderedWeeks(item);
+    /*
+    if (renderQueue && !renderQueue.isEmpty() && item === renderQueue.first()) {
+      const updatedRenderQueue = renderQueue.shift();
+      this.setState('renderQueue', updatedRenderQueue);
+      console.log('Updated renderQueue', renderQueue);
+    } else if (monthsWithRenderedWeeks.some((entry) => entry === item)) {
+      const newRenderQueue = List().withMutations((listWithMutations) => {
+        for (let renderIndex = 0; renderIndex < 3; renderIndex++) {
+          listWithMutations.push(format(addMonths(item, renderIndex + 1), 'YYYY-MM'));
+        }  
+      });
+      this.setState('renderQueue', newRenderQueue);
+      console.log('New renderQueue:', renderQueue);
+    }
+    */
   }
 
   render() {
@@ -156,12 +180,11 @@ class CalendarView extends React.PureComponent {
           onMomentumScrollBegin={this._onMomentumScrollBegin}
           onMomentumScrollEnd={this._onMomentumScrollEnd}
           onViewableItemsChanged={this._onViewableItemsChanged}
-          windowSize={12}
-          initialNumToRender={12}
+          //windowSize={18}
+          //initialNumToRender={12}
           //maxToRenderPerBatch={32}
           //renderQueue={renderQueue}
           //showsVerticalScrollIndicator={false}
-          //windowSize={12}
           //initialNumToRender={6}
           //removeClippedSubviews={false}
           //onEndReachedThreshold={0.1}

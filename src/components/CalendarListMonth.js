@@ -25,6 +25,20 @@ export default class CalendarListMonth extends React.Component {
     const { id, removeFromMonthsWithRenderedWeeks } = this.props;
     removeFromMonthsWithRenderedWeeks(id);
   }
+
+  componentDidUpdate(prevProps, prevState) {
+    const { id, shouldRenderWeeks, onMonthRenderedWithWeeks } = this.props;
+    if (shouldRenderWeeks !== prevProps.shouldRenderWeeks) {
+      onMonthRenderedWithWeeks(id);
+    }
+  }
+
+  componentDidMount() {
+    const { id, shouldRenderWeeks, onMonthRenderedWithWeeks } = this.props;
+    if (shouldRenderWeeks) {
+      onMonthRenderedWithWeeks(id);
+    }
+  }
   
   render() {
     const { id, weeks, selected, onDatePress, dayHeight, shouldRenderWeeks } = this.props;
