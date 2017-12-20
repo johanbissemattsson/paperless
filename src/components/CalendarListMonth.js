@@ -28,14 +28,17 @@ export default class CalendarListMonth extends React.Component {
 
   componentDidUpdate(prevProps, prevState) {
     const { id, shouldRenderWeeks, onMonthRenderedWithWeeks } = this.props;
+    
     if (shouldRenderWeeks !== prevProps.shouldRenderWeeks) {
-      onMonthRenderedWithWeeks(id);
+      console.log('componentiddupdate', id);
+      onMonthRenderedWithWeeks(id);      
     }
   }
 
   componentDidMount() {
     const { id, shouldRenderWeeks, onMonthRenderedWithWeeks } = this.props;
     if (shouldRenderWeeks) {
+      console.log('mount', id);
       onMonthRenderedWithWeeks(id);
     }
   }

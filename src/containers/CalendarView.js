@@ -23,7 +23,9 @@ class CalendarView extends React.PureComponent {
       onEndReachedCalledDuringMomentum: false,
       viewableItems: new Array,
       monthsWithRenderedWeeks: new List(),
-      renderQueue: new List()
+      renderQueue: new List(),
+      allViewableItemsRendered: false,
+      unrenderedRenderQueueItems: new List()
     };
   }
 
@@ -43,11 +45,18 @@ class CalendarView extends React.PureComponent {
   }
   _renderItem = ({item}) => {
     const { calendar } = this.props;
-    const { dayHeight, viewableItems, documentsInSelected, currentDocument, monthsWithRenderedWeeks, renderQueue } = this.state;
+    const { dayHeight, viewableItems, documentsInSelected, currentDocument, monthsWithRenderedWeeks, renderQueue, currentItemInRenderQueue, allViewableItemsRendered } = this.state;
     const selected = calendar.get('selected');
-    const shouldRenderWeeks = (viewableItems.some((entry) => entry.item === item) || monthsWithRenderedWeeks.some((entry) => entry === item) || (renderQueue.first() === item));
-    
-    return (
+
+    const unrenderedRenderQueueItems = renderQueue.filter((renderQueueItem) => monthsWithRenderedWeeks.filter((entry) => entry != renderQueueItem) );
+    //console.log('unrenderedRenderQueueItems', unrenderedRenderQueueItems);
+    const shouldRenderWeeks = (viewableItems.some((entry) => entry.item === item) || (monthsWithRenderedWeeks.some((entry) => entry === item)) || (allViewableItemsRendered && unrenderedRenderQueueItems.some((entry) => entry === item))); //with or without allViewableItemsRendered???
+    //(allViewableItemsRendered && unrenderedRenderQueueItems.some((entry) => entry === item)) && console.log('RENDER QUEUE: shouldRenderWeeks',item);
+
+
+
+
+   return (
       <CalendarListMonth
         id={item}
         weeks={
@@ -97,15 +106,11 @@ class CalendarView extends React.PureComponent {
   }
 
   _onViewableItemsChanged = (event) => {
-    const { renderQueue } = this.state;
+    const { renderQueue, monthsWithRenderedWeeks } = this.state;
 
     const viewableItems = event.viewableItems;
     const firstViewableMonth = viewableItems[0].item;
     const lastViewableMonth = viewableItems[viewableItems.length - 1].item;
-
-    viewableItems.map((viewableItem) => {
-      this.addToMonthsWithRenderedWeeks(viewableItem.item);
-    })
 
     const newRenderQueue = List().withMutations((listWithMutations) => {
       for (let renderIndex = 0; renderIndex < 3; renderIndex++) {
@@ -113,9 +118,15 @@ class CalendarView extends React.PureComponent {
       }  
     });
 
-    console.log('newRenderQueue', newRenderQueue);
-
-    this.setState({viewableItems: viewableItems, renderQueue: newRenderQueue});
+    //console.log('new render queue', newRenderQueue);
+    //console.log('monthsWithRenderedWeeks', monthsWithRenderedWeeks);
+    if (viewableItems.map((viewableItem) => monthsWithRenderedWeeks.includes(viewableItem))) {     
+      this.setState({viewableItems: viewableItems, renderQueue: newRenderQueue, allViewableItemsRendered: true});
+      console.log('all viewable rendered');
+    } else {
+      console.log('all viewable not rendered');
+      this.setState({viewableItems: viewableItems, renderQueue: newRenderQueue, allViewableItemsRendered: false});
+    }
   }
 
   addToMonthsWithRenderedWeeks = (item) => {
@@ -133,31 +144,17 @@ class CalendarView extends React.PureComponent {
   }
 
   onMonthRenderedWithWeeks = (item) => {
-    const { monthsWithRenderedWeeks, renderQueue } = this.state;
-    const updatedRenderQueue = renderQueue.filter((entry) => entry != item);
-    this.setState({renderQueue: updatedRenderQueue});
-    console.log('updatedRenderQueue', updatedRenderQueue);
+    const { monthsWithRenderedWeeks, renderQueue, currentItemInRenderQueue, viewableItems } = this.state;
+    const updatedRenderQueue = renderQueue.filter((entry) => (entry != item));
+
+    this.setState({renderQueue: updatedRenderQueue, currentItemInRenderQueue: updatedRenderQueue.first()});
+    //console.log('updated renderqueue', updatedRenderQueue, 'currentItemInRenderQueue', currentItemInRenderQueue, 'unrenderedRenderQueueItems', unrenderedRenderQueueItems);
     this.addToMonthsWithRenderedWeeks(item);
-    /*
-    if (renderQueue && !renderQueue.isEmpty() && item === renderQueue.first()) {
-      const updatedRenderQueue = renderQueue.shift();
-      this.setState('renderQueue', updatedRenderQueue);
-      console.log('Updated renderQueue', renderQueue);
-    } else if (monthsWithRenderedWeeks.some((entry) => entry === item)) {
-      const newRenderQueue = List().withMutations((listWithMutations) => {
-        for (let renderIndex = 0; renderIndex < 3; renderIndex++) {
-          listWithMutations.push(format(addMonths(item, renderIndex + 1), 'YYYY-MM'));
-        }  
-      });
-      this.setState('renderQueue', newRenderQueue);
-      console.log('New renderQueue:', renderQueue);
-    }
-    */
   }
 
   render() {
     const { calendar } = this.props;
-    const { dayHeight, documentsInSelected, currentDocument } = this.state;    
+    const { dayHeight, documentsInSelected, currentDocument, renderQueue } = this.state;    
     //const { renderQueue } = this.state;
     return (
       <View style={styles.container}>
