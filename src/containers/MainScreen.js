@@ -8,7 +8,6 @@ import { NavigationActions } from 'react-navigation';
 import CalendarView from './CalendarView';
 import DocumentsView from './DocumentsView';
 import CameraView from './CameraView';
-import ContextMenu from '../components/ContextMenu';
 
 class MainScreen extends React.Component {
   constructor(props, context) {
@@ -29,7 +28,6 @@ class MainScreen extends React.Component {
         <DocumentsView />
         <CalendarView />
         <CameraView />
-        <ContextMenu />
       </View>
     );
   }

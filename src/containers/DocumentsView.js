@@ -5,7 +5,8 @@ import { connect } from 'react-redux';
 import { Map, List, Seq } from 'immutable';
 import Frisbee from 'frisbee';
 
-import ContextMenu from '../components/ContextMenu';
+import DocumentContextMenu from '../components/DocumentContextMenu';
+
 import { SELECT_DATE } from '../actionTypes';
 
 class DocumentsView extends React.Component {
@@ -23,12 +24,13 @@ class DocumentsView extends React.Component {
     const dayWidth = windowWidth / 7;
     
     return (
-      <View style={[styles.container, {width: windowWidth, height: windowHeight - (dayWidth * 2) - (Constants.statusBarHeight * 2), top: Constants.statusBarHeight + dayWidth}]}>
+      <View style={[styles.container, {width: windowWidth, height: windowHeight - (dayWidth * 3) - (Constants.statusBarHeight * 2), top: dayWidth}]}>
         <FlatList
           style={styles.list}
           data={[{key: 'a'}, {key: 'b'}, {key: 'c'}, {key: 'd'}, {key: 'e'}, {key: 'f'}, {key: 'g'}, {key: 'h'}, {key: 'i'}, {key: 'j'}, {key: 'k'}, {key: 'l'}, {key: 'm'}, {key: 'n'}, {key: 'o'}, {key: 'p'}, {key: 'q'}, {key: 'r'}, {key: 's'}, {key: 't'}, {key: 'u'}, {key: 'v'}, {key: 'w'}, {key: 'x'}, {key: 'y'}, {key: 'z'}]}
           renderItem={({item}) => <Text style={styles.listItem}>{item.key}</Text>}
         />
+        <DocumentContextMenu />
       </View>
     );
   }

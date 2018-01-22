@@ -5,15 +5,13 @@ import { StyleSheet, Button, View, Text, Platform, ToolbarAndroid } from 'react-
 import { NavigationActions } from 'react-navigation';
 import { Constants } from 'expo';
 
-const ContextMenu = ({ settingsScreen }) => (
+const DocumentContextMenu = ({ settingsScreen }) => (
   (Platform.OS === 'android') ?
-    <View style={styles.container}>
-      <ToolbarAndroid
-        actions={[/*{title: 'Search', show: 'always'},*/{title: 'Refresh', show: 'never'}, {title: 'Settings', show: 'never'},{title: 'Help and feedback', show: 'never'}]}
-        onActionSelected={settingsScreen}
-        style={styles.toolbar}
-      />
-    </View>
+    <ToolbarAndroid
+      actions={[/*{title: 'Search', show: 'always'},*/{title: 'Refresh', show: 'never'}, {title: 'Settings', show: 'never'},{title: 'Help and feedback', show: 'never'}]}
+      onActionSelected={settingsScreen}
+      style={styles.toolbar}
+    />
   :
     null //add iOS fallback here
 )
@@ -25,17 +23,15 @@ const mapDispatchToProps = dispatch => ({
     dispatch(NavigationActions.navigate({ routeName: 'Settings', user: 'aaa' })),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(ContextMenu);
+export default connect(mapStateToProps, mapDispatchToProps)(DocumentContextMenu);
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   toolbar: {
-    flex: 1,
     height: 128,
     width: 128,
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    //marginTop: Constants.statusBarHeight
   }
 });

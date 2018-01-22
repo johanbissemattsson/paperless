@@ -7,19 +7,28 @@ import { Constants } from 'expo';
 
 import MainScreen from '../containers/MainScreen';
 import SettingsScreen from '../containers/SettingsScreen';
+import ContextMenu from '../components/ContextMenu';
 
 const routeConfigs = {
   Main: { 
     screen: MainScreen,
     navigationOptions: {
-      header: null
+      headerStyle: {
+        marginTop: Constants.statusBarHeight,
+        position: 'absolute',
+        top: 16,
+        left: 0,
+        right: 0,
+        zIndex: 10000
+      },
+      headerRight: <ContextMenu />
     }
   },
   Settings: {
     screen: SettingsScreen,
     navigationOptions: {
       headerStyle: {
-        marginTop: Constants.statusBarHeight
+        marginTop: Constants.statusBarHeight,
       }
     }
   },
