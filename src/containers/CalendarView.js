@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, VirtualizedList, Dimensions, findNodeHandle } from 'react-native';
+import { StyleSheet, Text, View, VirtualizedList, Dimensions, findNodeHandle, PixelRatio} from 'react-native';
 import { Constants } from 'expo';
 import { connect } from 'react-redux';
 import { format, differenceInCalendarWeeks, eachDay, startOfMonth, endOfMonth, isSameWeek, addWeeks, isSameMonth, addMonths} from 'date-fns';
@@ -19,7 +19,7 @@ class CalendarView extends React.PureComponent {
 
     this.state = {
       scrollIndex: calendar.get('months').findIndex(item => item === format(calendar.get('selected'), 'YYYY-MM')),
-      dayHeight: Math.round(Dimensions.get('window').width / 7),
+      dayHeight: PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 7),
       onEndReachedCalledDuringMomentum: false,
       viewableItems: new Array,
       monthsWithRenderedWeeks: new List(),
@@ -53,9 +53,6 @@ class CalendarView extends React.PureComponent {
     const shouldRenderWeeks = (viewableItems.some((entry) => entry.item === item) || (monthsWithRenderedWeeks.some((entry) => entry === item)) || (allViewableItemsRendered && unrenderedRenderQueueItems.some((entry) => entry === item))); //with or without allViewableItemsRendered???
     //(allViewableItemsRendered && unrenderedRenderQueueItems.some((entry) => entry === item)) && console.log('RENDER QUEUE: shouldRenderWeeks',item);
 
-
-
-
    return (
       <CalendarListMonth
         id={item}
@@ -85,7 +82,11 @@ class CalendarView extends React.PureComponent {
   _onDatePress = (date, refCalendarListDay) => {     
     refCalendarListDay.measureLayout(
       findNodeHandle(this.refList),
-      (x, y, width, height) => {console.log(x, y, width, height); this.refList.scrollToOffset({animated: true, offset: Math.round(y)})}
+      (x, y, width, height) => {
+        //const offset = Math.round(y) - Constants.statusBarHeight;
+        const offset = PixelRatio.roundToNearestPixel(y);
+        this.refList.scrollToOffset({animated: true, offset: offset});
+      }
     );
     
     const { selectDate } = this.props;
