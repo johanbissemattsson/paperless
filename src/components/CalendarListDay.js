@@ -25,7 +25,7 @@ export default class CalenderListDay extends React.Component {
 CalenderListDay.propTypes = {
   day: PropTypes.string.isRequired,
   selected: PropTypes.oneOfType([PropTypes.string, PropTypes.bool]).isRequired,
-  onDatePress: PropTypes.func.isRequired.apply,
+  onDatePress: PropTypes.func.isRequired,
   dayHeight: PropTypes.number
 };
 
