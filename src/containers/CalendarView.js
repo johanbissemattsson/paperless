@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, Text, View, VirtualizedList, Dimensions, findNodeHandle, PixelRatio} from 'react-native';
 import { Constants } from 'expo';
 import { connect } from 'react-redux';
-import { format, differenceInCalendarWeeks, eachDay, startOfMonth, endOfMonth, isSameWeek, addWeeks, isSameMonth, addMonths} from 'date-fns';
+import { format, differenceInCalendarWeeks, eachDay, startOfMonth, endOfMonth, isSameWeek, addWeeks, isSameMonth, addMonths, startOfWeek, endOfWeek } from 'date-fns';
 import { Map, List, Seq } from 'immutable';
 import { NavigationActions } from 'react-navigation';
 
@@ -59,7 +59,7 @@ class CalendarView extends React.PureComponent {
         weeks={
           List(new Array(differenceInCalendarWeeks(endOfMonth(item), startOfMonth(item)) + 1))
               .map((_,week) => (
-                {days: Seq(eachDay(startOfMonth(item),endOfMonth(item))).filter((days) => (
+                {days: Seq(eachDay(startOfWeek(startOfMonth(item)),endOfWeek(endOfMonth(item)))).filter((days) => (
                   isSameWeek(days, addWeeks(item,week))))
                   .map((day) => (format(day, 'YYYY-MM-DD')
                   ))
