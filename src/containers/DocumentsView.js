@@ -26,7 +26,7 @@ class DocumentsView extends React.Component {
     return (
       <View style={[styles.container, {width: windowWidth, height: windowHeight - (dayWidth * 3) - (Constants.statusBarHeight * 2), top: dayWidth}]}>
         <FlatList
-          style={styles.list}
+          contentContainerStyle={styles.list}
           data={[{key: 'a'}, {key: 'b'}, {key: 'c'}, {key: 'd'}, {key: 'e'}, {key: 'f'}, {key: 'g'}, {key: 'h'}, {key: 'i'}, {key: 'j'}, {key: 'k'}, {key: 'l'}, {key: 'm'}, {key: 'n'}, {key: 'o'}, {key: 'p'}, {key: 'q'}, {key: 'r'}, {key: 's'}, {key: 't'}, {key: 'u'}, {key: 'v'}, {key: 'w'}, {key: 'x'}, {key: 'y'}, {key: 'z'}]}
           renderItem={({item}) => <Text style={styles.listItem}>{item.key}</Text>}
         />
