@@ -57,11 +57,9 @@ export default class CalendarListMonth extends React.Component {
         <View style={[styles.month, {minHeight: dayHeight * weeks.size}]} >
           {shouldRenderWeeks && weeks.map((week, weekIndex) => (
             <CalendarListWeek week={week} selected={selected} key={weekIndex}>
-              {(weekIndex === 0 && week.days.count() < 7 ) && <View style={[styles.marginDay, {flex: (7 - week.days.count()) / 7}]} />}
               {week.days.map((day, dayIndex) => (
                 <CalendarListDay day={day} selected={selected} dayHeight={dayHeight} onDatePress={onDatePress} key={dayIndex}/>
               ))}
-              {(weekIndex === (weeks.count() - 1) && week.days.count() < 7 ) && <View style={[styles.marginDay, {flex: (7 - week.days.count()) / 7}]} />}
             </CalendarListWeek>
           ))}
         </View>
@@ -96,10 +94,6 @@ const styles = StyleSheet.create({
     flex: 1,
     alignSelf: 'stretch',
     backgroundColor: '#8766ee',    
-  },
-  marginDay: {
-    backgroundColor: '#8766ee',
-    alignSelf: 'stretch',
   },
   header: {
     alignItems: 'center',
