@@ -13,6 +13,8 @@ export default class CalendarListMonth extends React.Component {
     const { id, selected, shouldRenderWeeks } = this.props;
 
     if (selected !== nextProps.selected) {
+      //console.log('selected', id, selected, nextProps.selected);
+      //console.log('seleceted',selected);
       return true;
     } else if (shouldRenderWeeks !== nextProps.shouldRenderWeeks) {
       return true;
@@ -27,10 +29,12 @@ export default class CalendarListMonth extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { id, shouldRenderWeeks, onMonthRenderedWithWeeks } = this.props;
-    
+    const { id, shouldRenderWeeks, onMonthRenderedWithWeeks, selected } = this.props;
+    /*if (selected) {
+      console.log('componentDidUpdate CalenderListMonth', id, 'selected',selected);
+    }*/
     if (shouldRenderWeeks !== prevProps.shouldRenderWeeks) {
-      console.log('componentiddupdate', id);
+      //console.log('componentiddupdate', id);
       onMonthRenderedWithWeeks(id);      
     }
   }
@@ -38,13 +42,13 @@ export default class CalendarListMonth extends React.Component {
   componentDidMount() {
     const { id, shouldRenderWeeks, onMonthRenderedWithWeeks } = this.props;
     if (shouldRenderWeeks) {
-      console.log('mount', id);
+      //console.log('mount', id);
       onMonthRenderedWithWeeks(id);
     }
   }
   
   render() {
-    const { id, weeks, selected, onDatePress, dayHeight, shouldRenderWeeks } = this.props;
+    const { id, weeks, selected, onDatePress, updateSelectedRef, dayHeight, shouldRenderWeeks, scrollToWeek} = this.props;
 
     return (
       <View style={[styles.container, selected && styles.selectedContainer, {minHeight: dayHeight * 7}]}>
@@ -56,9 +60,9 @@ export default class CalendarListMonth extends React.Component {
         </View>
         <View style={[styles.month, {minHeight: dayHeight * weeks.size}]} >
           {shouldRenderWeeks && weeks.map((week, weekIndex) => (
-            <CalendarListWeek week={week} selected={selected} key={weekIndex}>
+            <CalendarListWeek week={week} selected={selected} key={weekIndex} scrollToWeek={scrollToWeek}>
               {week.days.map((day, dayIndex) => (
-                <CalendarListDay day={day} selected={selected} dayHeight={dayHeight} onDatePress={onDatePress} key={dayIndex}/>
+                <CalendarListDay day={day} parentMonth={id} selected={selected} dayHeight={dayHeight} onDatePress={onDatePress} updateSelectedRef={updateSelectedRef} dayRef={node => {this.refCalendarListDay = node}} key={dayIndex}/>
               ))}
             </CalendarListWeek>
           ))}
@@ -74,6 +78,7 @@ CalendarListMonth.propTypes = {
   weeks: PropTypes.instanceOf(List).isRequired,
   selected: PropTypes.oneOfType([PropTypes.string, PropTypes.bool]).isRequired,
   onDatePress: PropTypes.func.isRequired,
+  updateSelectedRef: PropTypes.func.isRequired,
   dayHeight: PropTypes.number,
   shouldRenderWeeks: PropTypes.bool,  
   removeFromMonthsWithRenderedWeeks: PropTypes.func.isRequired,

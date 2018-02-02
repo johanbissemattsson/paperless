@@ -68,19 +68,61 @@ class CalendarView extends React.PureComponent {
         }
         selected={isSameMonth(item, selected) && selected}
         onDatePress={this._onDatePress}
+        scrollToWeek={this._scrollToWeek}
+        updateSelectedRef={this._updateSelectedRef}
         dayHeight={dayHeight}
         shouldRenderWeeks={shouldRenderWeeks}
         addToMonthsWithRenderedWeeks={this.addToMonthsWithRenderedWeeks}
         removeFromMonthsWithRenderedWeeks={this.removeFromMonthsWithRenderedWeeks}
         onMonthRenderedWithWeeks={this.onMonthRenderedWithWeeks}
+        //refList={findNodeHandle(this.refList)}
         //renderQueue={renderQueue}
         //updateRenderQueueAfterComponentDidUpdate={this.updateRenderQueueAfterComponentDidUpdate}
       />
     )
   }
 
-  _onDatePress = (date, refCalendarListDay) => {     
+  _onDatePress = (date, refCalendarListDay, isSameMonthAsParentMonth) => {
+    if (isSameMonthAsParentMonth) {
+      console.log(date, 'same month as parentmonth');      
+    } else {
+      console.log(date, 'not same month as parentmonth');
+    }
+    
+    const { selectDate } = this.props;
+    selectDate(date);
+  }
+
+  _scrollToWeek = (refCalendarListWeek) => {
+
+    if (refCalendarListWeek) {
+      refCalendarListWeek.measureLayout(
+        findNodeHandle(this.refList),
+        (x, y, width, height) => {
+          //const offset = Math.round(y) - Constants.statusBarHeight;
+          const offset = PixelRatio.roundToNearestPixel(y);
+          this.refList.scrollToOffset({animated: true, offset: offset});
+          //this.refList.scrollToOffset({animated: true, offset: offset});
+        }
+      );
+    }
+    
+  }
+
+  _updateSelectedRef = (date, refCalendarListDay) => {
     refCalendarListDay.measureLayout(
+      findNodeHandle(this.refList),
+      (x, y, width, height) => {
+        //const offset = Math.round(y) - Constants.statusBarHeight;
+        const offset = PixelRatio.roundToNearestPixel(y);
+        console.log('offset!!', offset);
+        //this.refList.scrollToOffset({animated: true, offset: offset});
+      }
+    );
+    
+    
+    //console.log(refCalendarListDay);
+    /*refCalendarListDay.measureLayout(
       findNodeHandle(this.refList),
       (x, y, width, height) => {
         //const offset = Math.round(y) - Constants.statusBarHeight;
@@ -88,9 +130,7 @@ class CalendarView extends React.PureComponent {
         this.refList.scrollToOffset({animated: true, offset: offset});
       }
     );
-    
-    const { selectDate } = this.props;
-    selectDate(date);
+    */
   }
 
   _onMomentumScrollBegin = () => {
@@ -123,9 +163,9 @@ class CalendarView extends React.PureComponent {
     //console.log('monthsWithRenderedWeeks', monthsWithRenderedWeeks);
     if (viewableItems.map((viewableItem) => monthsWithRenderedWeeks.includes(viewableItem))) {     
       this.setState({viewableItems: viewableItems, renderQueue: newRenderQueue, allViewableItemsRendered: true});
-      console.log('all viewable rendered');
+      //console.log('all viewable rendered');
     } else {
-      console.log('all viewable not rendered');
+      //console.log('all viewable not rendered');
       this.setState({viewableItems: viewableItems, renderQueue: newRenderQueue, allViewableItemsRendered: false});
     }
   }
@@ -133,14 +173,14 @@ class CalendarView extends React.PureComponent {
   addToMonthsWithRenderedWeeks = (item) => {
     const { monthsWithRenderedWeeks } = this.state;
     if (!monthsWithRenderedWeeks.includes(item)) {
-      console.log('add', item);      
+      //console.log('add', item);      
       this.setState({monthsWithRenderedWeeks: monthsWithRenderedWeeks.push(item)})
     }
   }
 
   removeFromMonthsWithRenderedWeeks = (item) => {
     const { monthsWithRenderedWeeks } = this.state;
-    console.log('remove', item);
+    //console.log('remove', item);
     this.setState({monthsWithRenderedWeeks: monthsWithRenderedWeeks.filter(month => month != item)})
   }
 
