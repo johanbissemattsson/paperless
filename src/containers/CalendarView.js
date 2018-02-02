@@ -68,8 +68,7 @@ class CalendarView extends React.PureComponent {
         }
         selected={isSameMonth(item, selected) && selected}
         onDatePress={this._onDatePress}
-        scrollToWeek={this._scrollToWeek}
-        updateSelectedRef={this._updateSelectedRef}
+        updateActiveCalendarListWeek={this._updateActiveCalendarListWeek}
         dayHeight={dayHeight}
         shouldRenderWeeks={shouldRenderWeeks}
         addToMonthsWithRenderedWeeks={this.addToMonthsWithRenderedWeeks}
@@ -93,10 +92,12 @@ class CalendarView extends React.PureComponent {
     selectDate(date);
   }
 
-  _scrollToWeek = (refCalendarListWeek) => {
+  componentDidUpdate() {
+    const {activeCalendarListWeek} = this.state;
 
-    if (refCalendarListWeek) {
-      refCalendarListWeek.measureLayout(
+    if (activeCalendarListWeek) {
+      this.setState({activeCalendarListWeek: null});
+      activeCalendarListWeek.measureLayout(
         findNodeHandle(this.refList),
         (x, y, width, height) => {
           //const offset = Math.round(y) - Constants.statusBarHeight;
@@ -106,31 +107,13 @@ class CalendarView extends React.PureComponent {
         }
       );
     }
-    
   }
 
-  _updateSelectedRef = (date, refCalendarListDay) => {
-    refCalendarListDay.measureLayout(
-      findNodeHandle(this.refList),
-      (x, y, width, height) => {
-        //const offset = Math.round(y) - Constants.statusBarHeight;
-        const offset = PixelRatio.roundToNearestPixel(y);
-        console.log('offset!!', offset);
-        //this.refList.scrollToOffset({animated: true, offset: offset});
-      }
-    );
+  _updateActiveCalendarListWeek = (refCalendarListWeek) => {
+    if (refCalendarListWeek) {
+      this.setState({activeCalendarListWeek: refCalendarListWeek});
+    }
     
-    
-    //console.log(refCalendarListDay);
-    /*refCalendarListDay.measureLayout(
-      findNodeHandle(this.refList),
-      (x, y, width, height) => {
-        //const offset = Math.round(y) - Constants.statusBarHeight;
-        const offset = PixelRatio.roundToNearestPixel(y);
-        this.refList.scrollToOffset({animated: true, offset: offset});
-      }
-    );
-    */
   }
 
   _onMomentumScrollBegin = () => {

@@ -1,5 +1,4 @@
 import React from 'react';
-import { findNodeHandle } from 'react-native';
 import PropTypes from 'prop-types';
 import { StyleSheet, Text, View, TouchableNativeFeedback, Platform} from 'react-native';
 import { format, isEqual, isPast, isToday, isSameMonth, isSameWeek } from 'date-fns';
@@ -27,7 +26,6 @@ CalenderListDay.propTypes = {
   day: PropTypes.string.isRequired,
   selected: PropTypes.oneOfType([PropTypes.string, PropTypes.bool]).isRequired,
   onDatePress: PropTypes.func.isRequired,
-  updateSelectedRef: PropTypes.func.isRequired,
   dayHeight: PropTypes.number,
   parentMonth: PropTypes.string.isRequired,
 };

@@ -48,7 +48,7 @@ export default class CalendarListMonth extends React.Component {
   }
   
   render() {
-    const { id, weeks, selected, onDatePress, updateSelectedRef, dayHeight, shouldRenderWeeks, scrollToWeek} = this.props;
+    const { id, weeks, selected, onDatePress, dayHeight, shouldRenderWeeks, updateActiveCalendarListWeek} = this.props;
 
     return (
       <View style={[styles.container, selected && styles.selectedContainer, {minHeight: dayHeight * 7}]}>
@@ -60,9 +60,9 @@ export default class CalendarListMonth extends React.Component {
         </View>
         <View style={[styles.month, {minHeight: dayHeight * weeks.size}]} >
           {shouldRenderWeeks && weeks.map((week, weekIndex) => (
-            <CalendarListWeek week={week} selected={selected} key={weekIndex} scrollToWeek={scrollToWeek}>
+            <CalendarListWeek week={week} selected={selected} key={weekIndex} updateActiveCalendarListWeek={updateActiveCalendarListWeek}>
               {week.days.map((day, dayIndex) => (
-                <CalendarListDay day={day} parentMonth={id} selected={selected} dayHeight={dayHeight} onDatePress={onDatePress} updateSelectedRef={updateSelectedRef} dayRef={node => {this.refCalendarListDay = node}} key={dayIndex}/>
+                <CalendarListDay day={day} parentMonth={id} selected={selected} dayHeight={dayHeight} onDatePress={onDatePress} key={dayIndex}/>
               ))}
             </CalendarListWeek>
           ))}
@@ -78,7 +78,6 @@ CalendarListMonth.propTypes = {
   weeks: PropTypes.instanceOf(List).isRequired,
   selected: PropTypes.oneOfType([PropTypes.string, PropTypes.bool]).isRequired,
   onDatePress: PropTypes.func.isRequired,
-  updateSelectedRef: PropTypes.func.isRequired,
   dayHeight: PropTypes.number,
   shouldRenderWeeks: PropTypes.bool,  
   removeFromMonthsWithRenderedWeeks: PropTypes.func.isRequired,

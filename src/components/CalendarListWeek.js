@@ -5,11 +5,11 @@ import { isSameWeek } from 'date-fns';
 import { List, Map } from 'immutable';
 
 export default class CalendarListWeek extends React.Component {
-  _onLayout = () => {
-    const { week, selected, scrollToWeek } = this.props;
+  componentDidUpdate() {
+    const { week, selected, updateActiveCalendarListWeek } = this.props;
 
     if (this.refCalendarListWeek && week.days.includes(selected)) {
-      scrollToWeek(this.refCalendarListWeek);
+      updateActiveCalendarListWeek(this.refCalendarListWeek);
     }
   }
 
@@ -18,7 +18,7 @@ export default class CalendarListWeek extends React.Component {
     const isSelectedWeek = isSameWeek(selected, week.days.first());
     
     return (
-      <View style={[styles.container, isSelectedWeek && styles.selectedWeek]} ref={node => {this.refCalendarListWeek = node}} onLayout={this._onLayout()}>
+      <View style={[styles.container, isSelectedWeek && styles.selectedWeek]} collapsable={!isSelectedWeek} ref={node => {this.refCalendarListWeek = node}}>
         {children}
       </View>
     );
