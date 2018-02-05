@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, Text, View, VirtualizedList, Dimensions, findNodeHandle, PixelRatio} from 'react-native';
 import { Constants } from 'expo';
 import { connect } from 'react-redux';
-import { format, differenceInCalendarWeeks, eachDay, startOfMonth, endOfMonth, isSameWeek, addWeeks, isSameMonth, addMonths, startOfWeek, endOfWeek } from 'date-fns';
+import { format, differenceInCalendarWeeks, eachDay, startOfMonth, endOfMonth, isSameWeek, addWeeks, isSameMonth, addMonths, startOfWeek, endOfWeek, isEqual} from 'date-fns';
 import { Map, List, Seq } from 'immutable';
 import { NavigationActions } from 'react-navigation';
 
@@ -47,10 +47,10 @@ class CalendarView extends React.PureComponent {
     const { calendar } = this.props;
     const { dayHeight, viewableItems, documentsInSelected, currentDocument, monthsWithRenderedWeeks, renderQueue, currentItemInRenderQueue, allViewableItemsRendered } = this.state;
     const selected = calendar.get('selected');
-
+    const isActiveMonth = isEqual(format(selected, 'YYYY-MM'), item);
     const unrenderedRenderQueueItems = renderQueue.filter((renderQueueItem) => monthsWithRenderedWeeks.filter((entry) => entry != renderQueueItem) );
     //console.log('unrenderedRenderQueueItems', unrenderedRenderQueueItems);
-    const shouldRenderWeeks = (viewableItems.some((entry) => entry.item === item) || (monthsWithRenderedWeeks.some((entry) => entry === item)) || (allViewableItemsRendered && unrenderedRenderQueueItems.some((entry) => entry === item))); //with or without allViewableItemsRendered???
+    const shouldRenderWeeks = (isActiveMonth || viewableItems.some((entry) => entry.item === item) || (monthsWithRenderedWeeks.some((entry) => entry === item)) || (allViewableItemsRendered && unrenderedRenderQueueItems.some((entry) => entry === item))); //with or without allViewableItemsRendered???
     //(allViewableItemsRendered && unrenderedRenderQueueItems.some((entry) => entry === item)) && console.log('RENDER QUEUE: shouldRenderWeeks',item);
 
    return (
