@@ -1,63 +1,55 @@
 import { List, Map, Seq } from 'immutable';
-import { format, addMonths, subMonths } from 'date-fns';
+import { format, startOfWeek, addWeeks, subWeeks } from 'date-fns';
 
 import { SELECT_DATE } from '../actionTypes';
 
 const initialDate = new Date();
-const initialMonthsBeforeAndAfter = 6; // amount of months to initialize before and after the initial date 
-const amountOfMonthsToAdd = 6;
-
-const _formatMonth = (date) => {
-  return format(date, 'YYYY-MM');
-}
+const initialWeeksBeforeAndAfter = 52; // amount of weeks to initialize before and after the initial date 
+const amountOfWeeksToAdd = 52;
+const weekStartsOn = 1; // 1 = Monday (start of week)
 
 const _formatDate = (date) => {
   return format(date, 'YYYY-MM-DD');  
 }
 
-const _initMonthsInList = (date) => (
-  List(new Array(initialMonthsBeforeAndAfter + 1 + initialMonthsBeforeAndAfter))
-    .map((_,m) => (
-      _formatMonth(addMonths(subMonths(date, initialMonthsBeforeAndAfter ), m))
+const _initWeeksInList = (date) => {
+  const startOfInitialWeek = startOfWeek(date, {weekStartsOn: weekStartsOn}); 
+  return (
+  List(new Array(initialWeeksBeforeAndAfter + 1 + initialWeeksBeforeAndAfter))
+    .map((_,w) => (
+      _formatDate(addWeeks(subWeeks(startOfInitialWeek, initialWeeksBeforeAndAfter ), w))
     ))
-);
-
-const _initAddedMonths = (date) => (
-  List(new Array(amountOfMonthsToAdd))
-  .map((_,m) => (
-    _formatMonth(addMonths(date, m + 1))
-  ))
-);
+)};
 
 const initialState = Map({
-  months: _initMonthsInList( initialDate ),
-  selected: _formatDate( initialDate )
+  weeks: _initWeeksInList( initialDate ),
+  selected: _formatDate( initialDate ),
+  weekStartsOn: weekStartsOn,
 });
 
 export default calendar = (state = initialState, action) => {
   switch (action.type) {
     case SELECT_DATE:
       return state.set('selected', action.date);
-    case 'addMonthsBefore':
-      console.log('addMonthsBefore');
-      const firstMonth = state.get('months').first();
-      return state.update('months', list => (
+    case 'addWeeksBefore':
+      console.log('addWeeksBefore');
+      const firstWeek = state.get('weeks').first();
+      return state.update('weeks', list => (
         list.withMutations((listWithMutations) => {
-          for(let a = 1; a <= amountOfMonthsToAdd; a++) {
-            listWithMutations.unshift(_formatMonth(addMonths(firstMonth, a)))            
+          for(let a = 1; a <= amountOfWeeksToAdd; a++) {
+            listWithMutations.unshift(_formatDate(addWeeks(firstWeek, a)))            
           }
         })
       ))    
-    case 'addMonthsAfter':
-      const lastMonth = state.get('months').last();
-      return state.update('months', list => {
-        const updatedMonthList = list.withMutations((listWithMutations) => {
-          for(let a = 1; a <= amountOfMonthsToAdd; a++) {
-            listWithMutations.push(_formatMonth(addMonths(lastMonth, a)))            
+    case 'addWeeksAfter':
+      const lastWeek = state.get('weeks').last();
+      return state.update('weeks', list => {
+        const updatedWeeksList = list.withMutations((listWithMutations) => {
+          for(let a = 1; a <= amountOfWeeksToAdd; a++) {
+            listWithMutations.push(_formatDate(addWeeks(lastWeek, a)))            
           }
         });
-        //console.log('updatedMonthList: ', updatedMonthList);
-        return updatedMonthList;
+        return updatedWeeksList;
       })
     default:
       return state;

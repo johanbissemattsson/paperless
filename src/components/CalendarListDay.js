@@ -5,15 +5,13 @@ import { format, isEqual, isPast, isToday, isSameMonth, isSameWeek } from 'date-
 
 export default class CalenderListDay extends React.Component { 
   render() {
-    const { day, selected, onDatePress, dayHeight, parentMonth, updateSelectedRef } = this.props;
+    const { day, selected, onDatePress, dayHeight, updateSelectedRef, sameMonthAsSelected, sameWeekAsSelected  } = this.props;
     const isSelectedDay = selected && isEqual(day, selected);
-    const isSameMonthAsParentMonth = isSameMonth(day, parentMonth);
-    const isDisabled = !isSameMonthAsParentMonth && !isSameWeek(day, selected);
     
     return (
-      <View style={[styles.container, isSelectedDay && styles.selectedContainer]} ref={node => {this.refCalendarListDay = node}}>
-        <TouchableNativeFeedback onPress={((e) => onDatePress(day, this.refCalendarListDay, isSameMonthAsParentMonth))} background={TouchableNativeFeedback.SelectableBackground()} disabled={isDisabled}>
-          <View style={[styles.day, {height: dayHeight}, isDisabled && {opacity: 0.01} /* (selected && ((isSameWeek(day, selected) && isAfter(day, selected)) || isEqual(day, selected)) && {marginTop: daySize * 8}) */ ]} >
+      <View style={[styles.container, isSelectedDay && styles.selectedContainer, !isSelectedDay && sameMonthAsSelected && styles.selectedMonth ]} ref={node => {this.refCalendarListDay = node}}>
+        <TouchableNativeFeedback onPress={((e) => onDatePress(day, this.refCalendarListDay))} background={TouchableNativeFeedback.SelectableBackground()} >
+          <View style={[styles.day, {height: dayHeight}]}>
             <Text style={[styles.date, (isSelectedDay && styles.selectedDate)]}>{format(day,'D')}</Text>
           </View>
         </TouchableNativeFeedback> 
@@ -26,8 +24,7 @@ CalenderListDay.propTypes = {
   day: PropTypes.string.isRequired,
   selected: PropTypes.oneOfType([PropTypes.string, PropTypes.bool]).isRequired,
   onDatePress: PropTypes.func.isRequired,
-  dayHeight: PropTypes.number,
-  parentMonth: PropTypes.string.isRequired,
+  dayHeight: PropTypes.number.isRequired,
 };
 
 const styles = StyleSheet.create({
@@ -39,6 +36,10 @@ const styles = StyleSheet.create({
   },
   selectedContainer: {
     backgroundColor: 'transparent',
+  },
+  selectedWeek: {},
+  selectedMonth: {
+    backgroundColor: 'rgba(135, 102, 238, 0.75)'
   },
   day: {
     flex: 1,
