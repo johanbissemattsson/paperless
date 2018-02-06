@@ -8,9 +8,10 @@ import CalendarListDay from './CalendarListDay';
 
 export default class CalendarListWeek extends React.Component {
   shouldComponentUpdate(nextProps, nextState) { 
-    const { id, selected, shouldRenderWeeks } = this.props;
-    if (selected !== nextProps.selected && isSameMonth (id, selected)) {
-      console.log('selected', id, selected, nextProps.selected);
+    const { id, selected, shouldRenderWeeks, weekStartsOn } = this.props;
+    const wasSameWeekAsSelected = isSameWeek(id, selected, {weekStartsOn: weekStartsOn});
+    const willBeSameWeekAsSelected = isSameWeek(nextProps.id, nextProps.selected, {weekStartsOn: weekStartsOn});
+    if ((wasSameWeekAsSelected || willBeSameWeekAsSelected) && selected !== nextProps.selected) {
       return true;
     } else {
       return false;
@@ -19,7 +20,6 @@ export default class CalendarListWeek extends React.Component {
 
   componentDidUpdate() {
     const { week, selected, updateActiveCalendarListWeek } = this.props;
-    console.log('CalendarListDay did update');
 
     /*if (this.refCalendarListWeek && week.days.includes(selected)) {
       updateActiveCalendarListWeek(this.refCalendarListWeek);
