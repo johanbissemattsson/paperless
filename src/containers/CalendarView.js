@@ -25,7 +25,8 @@ class CalendarView extends React.PureComponent {
       monthsWithRenderedWeeks: new List(),
       renderQueue: new List(),
       allViewableItemsRendered: false,
-      unrenderedRenderQueueItems: new List()
+      unrenderedRenderQueueItems: new List(),
+      isLoadingContent: true
     };
   }
 
@@ -131,6 +132,16 @@ class CalendarView extends React.PureComponent {
 
   }
 
+  _handleContentSizeChange = () => {
+    const {isLoadingContent, scrollIndex} = this.state;
+
+    if (isLoadingContent) {
+      console.log('scrollToIndex', scrollIndex);
+      this.setState({isLoadingContent: false});
+      this.refList.scrollToIndex({index: scrollIndex, animated: false});
+    }
+  }
+
   addToMonthsWithRenderedWeeks = (item) => {
     /*
     const { monthsWithRenderedWeeks } = this.state;
@@ -163,6 +174,7 @@ class CalendarView extends React.PureComponent {
   render() {
     const { calendar } = this.props;
     const { dayHeight, documentsInSelected, currentDocument, renderQueue, scrollIndex } = this.state;   
+    const initialScrollIndex = scrollIndex - 0; // doesn't show initial scrollIndex if removed (strange...)
     //const { renderQueue } = this.state;
     return (
       <View style={styles.container}>
@@ -179,13 +191,13 @@ class CalendarView extends React.PureComponent {
           getItemCount={this._getItemCount}
           getItemLayout={this._getItemLayout}
           keyExtractor={this._keyExtractor}
-          initialScrollIndex={scrollIndex} // maybe subtract 1 due to https://github.com/facebook/react-native/issues/13202
+          initialScrollIndex={initialScrollIndex} // maybe subtract 1 due to https://github.com/facebook/react-native/issues/13202
           onEndReached={this._onEndReached}
           onMomentumScrollBegin={this._onMomentumScrollBegin}
           onMomentumScrollEnd={this._onMomentumScrollEnd}
           onViewableItemsChanged={this._onViewableItemsChanged}
-          //windowSize={18}
-          //initialNumToRender={12}
+          onContentSizeChange={this._handleContentSizeChange}
+          //indowSize={32}
           //maxToRenderPerBatch={32}
           //renderQueue={renderQueue}
           //showsVerticalScrollIndicator={false}

@@ -42,6 +42,7 @@ export default calendar = (state = initialState, action) => {
         })
       ))    
     case 'addWeeksAfter':
+      console.log('addWeeksAfter');
       const lastWeek = state.get('weeks').last();
       return state.update('weeks', list => {
         const updatedWeeksList = list.withMutations((listWithMutations) => {
