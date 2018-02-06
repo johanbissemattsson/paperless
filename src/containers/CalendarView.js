@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, Text, View, VirtualizedList, Dimensions, findNodeHandle, PixelRatio} from 'react-native';
 import { Constants } from 'expo';
 import { connect } from 'react-redux';
-import { format, differenceInCalendarWeeks, eachDay, startOfMonth, endOfMonth, isSameWeek, addWeeks, isSameMonth, addMonths, startOfWeek, endOfWeek, isEqual} from 'date-fns';
+import { format, differenceInCalendarWeeks, eachDay, startOfMonth, endOfMonth, isSameWeek, addWeeks, isSameMonth, addMonths, startOfWeek, endOfWeek} from 'date-fns';
 import { Map, List, Seq } from 'immutable';
 import { NavigationActions } from 'react-navigation';
 
@@ -16,9 +16,9 @@ class CalendarView extends React.PureComponent {
     super(props, context);
 
     const { calendar } = props;
-
+    console.log(calendar.get('weeks').findIndex(item => isSameWeek(item, (calendar.get('selected')))));
     this.state = {
-      scrollIndex: calendar.get('weeks').findIndex(item => item === format(calendar.get('selected'), 'YYYY-MM-DD')),
+      scrollIndex: calendar.get('weeks').findIndex(item => isSameWeek(item, (calendar.get('selected')))),
       dayHeight: PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 7),
       onEndReachedCalledDuringMomentum: false,
       viewableItems: new Array,
@@ -35,8 +35,7 @@ class CalendarView extends React.PureComponent {
   _getItemLayout = (data, index) => {
     const { calendar } = this.props;
     const { dayHeight } = this.state;
-    //const weeksInMonth = differenceInCalendarWeeks(endOfMonth(data.get(index)), startOfMonth(data.get(index))) + 2;
-    const itemLength = dayHeight; // add 1 for borders due to separator height (though probably better if height of separator is calculated instead)
+    const itemLength = dayHeight;
     return {
       length: itemLength,
       offset: itemLength * index,
@@ -48,7 +47,7 @@ class CalendarView extends React.PureComponent {
     const { dayHeight, viewableItems, documentsInSelected, currentDocument, monthsWithRenderedWeeks, renderQueue, currentItemInRenderQueue, allViewableItemsRendered } = this.state;
     const selected = calendar.get('selected');
     const weekStartsOn = calendar.get('weekStartsOn');
-    const isActiveWeek = isEqual(format(selected, 'YYYY-MM-DD'), item);
+    const isActiveWeek = isSameWeek(format(selected, 'YYYY-MM-DD'), item);
     //const unrenderedRenderQueueItems = renderQueue.filter((renderQueueItem) => monthsWithRenderedWeeks.filter((entry) => entry != renderQueueItem) );
     //const shouldRenderWeeks = (isActiveWeek || viewableItems.some((entry) => entry.item === item) || (monthsWithRenderedWeeks.some((entry) => entry === item)) || (allViewableItemsRendered && unrenderedRenderQueueItems.some((entry) => entry === item))); //with or without allViewableItemsRendered???
 
@@ -163,7 +162,7 @@ class CalendarView extends React.PureComponent {
 
   render() {
     const { calendar } = this.props;
-    const { dayHeight, documentsInSelected, currentDocument, renderQueue } = this.state;    
+    const { dayHeight, documentsInSelected, currentDocument, renderQueue, scrollIndex } = this.state;   
     //const { renderQueue } = this.state;
     return (
       <View style={styles.container}>
@@ -180,8 +179,7 @@ class CalendarView extends React.PureComponent {
           getItemCount={this._getItemCount}
           getItemLayout={this._getItemLayout}
           keyExtractor={this._keyExtractor}
-          //initialScrollIndex={this.state.scrollIndex - 1} // subtracting 1 due to https://github.com/facebook/react-native/issues/13202
-          //ItemSeparatorComponent={CalendarListMonthSeparator}
+          initialScrollIndex={scrollIndex} // maybe subtract 1 due to https://github.com/facebook/react-native/issues/13202
           onEndReached={this._onEndReached}
           onMomentumScrollBegin={this._onMomentumScrollBegin}
           onMomentumScrollEnd={this._onMomentumScrollEnd}
