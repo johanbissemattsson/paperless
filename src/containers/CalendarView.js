@@ -16,9 +16,11 @@ class CalendarView extends React.PureComponent {
     super(props, context);
 
     const { calendar } = props;
-    console.log(calendar.get('weeks').findIndex(item => isSameWeek(item, (calendar.get('selected')))));
+    const weekStartsOn = calendar.get('weekStartsOn');
+
+    console.log(weekStartsOn);
     this.state = {
-      scrollIndex: calendar.get('weeks').findIndex(item => isSameWeek(item, (calendar.get('selected')))),
+      scrollIndex: calendar.get('weeks').findIndex(item => isSameWeek(item, (calendar.get('selectedDate')),{weekStartsOn: weekStartsOn})),
       dayHeight: PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 7),
       onEndReachedCalledDuringMomentum: false,
       viewableItems: new Array,
@@ -46,9 +48,9 @@ class CalendarView extends React.PureComponent {
   _renderItem = ({item}) => {
     const { calendar } = this.props;
     const { dayHeight, viewableItems, documentsInSelected, currentDocument, monthsWithRenderedWeeks, renderQueue, currentItemInRenderQueue, allViewableItemsRendered } = this.state;
-    const selected = calendar.get('selected');
+    const selectedDate = calendar.get('selectedDate');
     const weekStartsOn = calendar.get('weekStartsOn');
-    const isActiveWeek = isSameWeek(format(selected, 'YYYY-MM-DD'), item);
+    const isActiveWeek = isSameWeek(format(selectedDate, 'YYYY-MM-DD'), item, {weekStartsOn: weekStartsOn});
     //const unrenderedRenderQueueItems = renderQueue.filter((renderQueueItem) => monthsWithRenderedWeeks.filter((entry) => entry != renderQueueItem) );
     //const shouldRenderWeeks = (isActiveWeek || viewableItems.some((entry) => entry.item === item) || (monthsWithRenderedWeeks.some((entry) => entry === item)) || (allViewableItemsRendered && unrenderedRenderQueueItems.some((entry) => entry === item))); //with or without allViewableItemsRendered???
 
@@ -58,7 +60,7 @@ class CalendarView extends React.PureComponent {
         days={
           List((eachDay(startOfWeek(item, {weekStartsOn: weekStartsOn}),endOfWeek(item, {weekStartsOn: weekStartsOn}))).map((day) => (format(day, 'YYYY-MM-DD'))))
         }
-        selected={selected}
+        selectedDate={selectedDate}
         onDatePress={this._onDatePress}
         dayHeight={dayHeight}
         weekStartsOn={weekStartsOn}
@@ -67,9 +69,12 @@ class CalendarView extends React.PureComponent {
     )
   }
 
-  _onDatePress = (date, refCalendarListDay) => {    
-    const { selectDate } = this.props;
+  _onDatePress = (date) => {    
+    const { calendar, selectDate } = this.props;
+    const weekStartsOn = calendar.get('weekStartsOn');
     selectDate(date);
+    const scrollIndex = calendar.get('weeks').findIndex(item => isSameWeek(item, startOfWeek(date, {weekStartsOn: weekStartsOn}), {weekStartsOn: weekStartsOn}));
+    this.refList.scrollToIndex({index: scrollIndex, animated: true});
   }
 
   componentDidUpdate() {
@@ -174,8 +179,6 @@ class CalendarView extends React.PureComponent {
   render() {
     const { calendar } = this.props;
     const { dayHeight, documentsInSelected, currentDocument, renderQueue, scrollIndex } = this.state;   
-    const initialScrollIndex = scrollIndex - 0; // doesn't show initial scrollIndex if removed (strange...)
-    //const { renderQueue } = this.state;
     return (
       <View style={styles.container}>
         <VirtualizedList
@@ -191,7 +194,7 @@ class CalendarView extends React.PureComponent {
           getItemCount={this._getItemCount}
           getItemLayout={this._getItemLayout}
           keyExtractor={this._keyExtractor}
-          initialScrollIndex={initialScrollIndex} // maybe subtract 1 due to https://github.com/facebook/react-native/issues/13202
+          initialScrollIndex={scrollIndex} // maybe subtract 1 due to https://github.com/facebook/react-native/issues/13202
           onEndReached={this._onEndReached}
           onMomentumScrollBegin={this._onMomentumScrollBegin}
           onMomentumScrollEnd={this._onMomentumScrollEnd}

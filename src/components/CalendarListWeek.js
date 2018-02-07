@@ -1,45 +1,67 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { StyleSheet, Text, View, PixelRatio } from 'react-native';
-import { isSameWeek, isSameMonth } from 'date-fns';
+import { isSameWeek, isSameMonth, isWithinRange, areRangesOverlapping, startOfMonth, endOfMonth, isEqual} from 'date-fns';
 import { List, Map } from 'immutable';
 
 import CalendarListDay from './CalendarListDay';
 
 export default class CalendarListWeek extends React.Component {
+  constructor(props, context) {
+    super(props, context);
+
+    const { days, selectedDate, weekStartsOn } = props;
+    this.state = {
+      weekIsSameWeekAsSelectedDate: isWithinRange(selectedDate, days.first(), days.last()),
+      weekIsSameMonthAsSelectedDate: areRangesOverlapping(days.first(), days.last(), startOfMonth(selectedDate), endOfMonth(selectedDate))
+    };
+  }
+
   shouldComponentUpdate(nextProps, nextState) { 
-    const { id, selected, shouldRenderWeeks, weekStartsOn } = this.props;
-    const wasSameWeekAsSelected = isSameWeek(id, selected, {weekStartsOn: weekStartsOn});
-    const willBeSameWeekAsSelected = isSameWeek(nextProps.id, nextProps.selected, {weekStartsOn: weekStartsOn});
-    if ((wasSameWeekAsSelected || willBeSameWeekAsSelected) && selected !== nextProps.selected) {
+    const { id, days, selectedDate, shouldRenderWeeks, weekStartsOn } = this.props;
+    const { weekIsSameWeekAsSelectedDate, weekIsSameMonthAsSelectedDate } = this.state;
+
+    const nextWeekIsSameWeekAsSelectedDate = isWithinRange(nextProps.selectedDate, nextProps.days.first(), nextProps.days.last());
+    const nextWeekIsSameMonthAsSelectedDate = areRangesOverlapping(nextProps.days.first(), nextProps.days.last(), startOfMonth(nextProps.selectedDate), endOfMonth(nextProps.selectedDate));
+
+    /*
+    nextWeekIsSameWeekAsSelected && console.log('nextWeekIsSameWeekAsSelected', nextWeekIsSameWeekAsSelected);
+    nextWeekIsSameMonthAsSelected && console.log('nextWeekIsSameMonthAsSelected', nextWeekIsSameMonthAsSelected);
+    weekIsSameWeekAsSelected && console.log('weekIsSameWeekAsSelected', weekIsSameWeekAsSelected);
+    weekIsSameMonthAsSelected && console.log('weekIsSameMonthAsSelected', weekIsSameMonthAsSelected);
+    */
+
+    if ((selectedDate !== nextProps.selectedDate) && (nextWeekIsSameWeekAsSelectedDate || nextWeekIsSameMonthAsSelectedDate || weekIsSameWeekAsSelectedDate || weekIsSameMonthAsSelectedDate)) {
       return true;
     } else {
       return false;
     }
   };
 
-  componentDidUpdate() {
-    const { week, selected, updateActiveCalendarListWeek } = this.props;
+  componentDidUpdate () {
+    const { days, selectedDate, dayHeight, onDatePress, weekStartsOn } = this.props;
 
-    /*if (this.refCalendarListWeek && week.days.includes(selected)) {
-      updateActiveCalendarListWeek(this.refCalendarListWeek);
-    }*/
+    this.setState({
+      weekIsSameWeekAsSelectedDate: isWithinRange(selectedDate, days.first(), days.last()),
+      weekIsSameMonthAsSelectedDate: areRangesOverlapping(days.first(), days.last(), startOfMonth(selectedDate), endOfMonth(selectedDate))
+    });
   }
 
   render() {
-    const { days, selected, dayHeight, onDatePress, weekStartsOn } = this.props;
+    const { days, selectedDate, dayHeight, onDatePress, weekStartsOn } = this.props;
 
     return (
       <View style={[styles.container, {minHeight: dayHeight}]}>
         {days.map((day, dayIndex) => {
-          const isSameMonthAsSelected = isSameMonth(day, selected);
-          const isSameWeekAsSelected = isSameWeek(day, selected, {weekStartsOn: weekStartsOn});
+          const dayIsSameWeekAsSelectedDate = isSameWeek(day, selectedDate, {weekStartsOn: weekStartsOn});
+          const dayIsSameMonthAsSelectedDate = isSameMonth(day, selectedDate);
+
           return (
             <CalendarListDay
               day={day}
-              selected={selected}
-              sameMonthAsSelected={isSameMonthAsSelected}
-              sameWeekAsSelected={isSameWeekAsSelected}
+              selected={isEqual(day, selectedDate)}
+              dayIsSameWeekAsSelectedDate={dayIsSameWeekAsSelectedDate}
+              dayIsSameMonthAsSelectedDate={dayIsSameMonthAsSelectedDate}
               dayHeight={dayHeight}
               onDatePress={onDatePress}
               key={dayIndex}/>
@@ -52,7 +74,7 @@ export default class CalendarListWeek extends React.Component {
 
 CalendarListWeek.propTypes = {
   days: PropTypes.instanceOf(List).isRequired,
-  selected: PropTypes.oneOfType([PropTypes.string, PropTypes.bool]).isRequired,
+  selectedDate: PropTypes.PropTypes.string.isRequired,
   dayHeight: PropTypes.number.isRequired,
   weekStartsOn: PropTypes.number.isRequired,
   onDatePress: PropTypes.func.isRequired,

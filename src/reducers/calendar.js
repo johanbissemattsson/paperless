@@ -23,14 +23,14 @@ const _initWeeksInList = (date) => {
 
 const initialState = Map({
   weeks: _initWeeksInList( initialDate ),
-  selected: _formatDate( initialDate ),
+  selectedDate: _formatDate( initialDate ),
   weekStartsOn: weekStartsOn,
 });
 
 export default calendar = (state = initialState, action) => {
   switch (action.type) {
     case SELECT_DATE:
-      return state.set('selected', action.date);
+      return state.set('selectedDate', action.date);
     case 'addWeeksBefore':
       console.log('addWeeksBefore');
       const firstWeek = state.get('weeks').first();

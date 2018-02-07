@@ -5,14 +5,13 @@ import { format, isEqual, isPast, isToday, isSameMonth, isSameWeek } from 'date-
 
 export default class CalenderListDay extends React.Component { 
   render() {
-    const { day, selected, onDatePress, dayHeight, updateSelectedRef, sameMonthAsSelected, sameWeekAsSelected  } = this.props;
-    const isSelectedDay = selected && isEqual(day, selected);
+    const { day, selected, dayHeight, onDatePress, updateSelectedRef, dayIsSameWeekAsSelectedDate, dayIsSameMonthAsSelectedDate  } = this.props;
     
     return (
-      <View style={[styles.container, isSelectedDay && styles.selectedContainer, !isSelectedDay && sameMonthAsSelected && styles.selectedMonth ]} ref={node => {this.refCalendarListDay = node}}>
-        <TouchableNativeFeedback onPress={((e) => onDatePress(day, this.refCalendarListDay))} background={TouchableNativeFeedback.SelectableBackground()} >
+      <View style={[styles.container, selected && styles.selectedContainer, !selected && dayIsSameMonthAsSelectedDate && styles.selectedMonth ]} ref={node => {this.refCalendarListDay = node}}>
+        <TouchableNativeFeedback onPress={((e) => onDatePress(day))} background={TouchableNativeFeedback.SelectableBackground()} >
           <View style={[styles.day, {height: dayHeight}]}>
-            <Text style={[styles.date, (isSelectedDay && styles.selectedDate)]}>{format(day,'D')}</Text>
+            <Text style={[styles.date, (selected && styles.selectedDate)]}>{format(day,'D')}</Text>
           </View>
         </TouchableNativeFeedback> 
       </View>
@@ -22,7 +21,7 @@ export default class CalenderListDay extends React.Component {
 
 CalenderListDay.propTypes = {
   day: PropTypes.string.isRequired,
-  selected: PropTypes.oneOfType([PropTypes.string, PropTypes.bool]).isRequired,
+  selected: PropTypes.PropTypes.bool.isRequired,
   onDatePress: PropTypes.func.isRequired,
   dayHeight: PropTypes.number.isRequired,
 };
@@ -39,7 +38,7 @@ const styles = StyleSheet.create({
   },
   selectedWeek: {},
   selectedMonth: {
-    backgroundColor: 'rgba(135, 102, 238, 0.75)'
+    backgroundColor: 'rgba(135, 102, 238, 0.95)'
   },
   day: {
     flex: 1,
