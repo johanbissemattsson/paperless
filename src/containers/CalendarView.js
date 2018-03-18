@@ -32,42 +32,10 @@ class CalendarView extends React.PureComponent {
       allViewableItemsRendered: false,
       unrenderedRenderQueueItems: new List(),
       isLoadingContent: true,
-      scrollEnabled: true
+      scrollEnabled: true,
     };
   }
-
-/*
-    const weeks = calendar.get('weeks');
-    const weekStartsOn = calendar.get('weekStartsOn');
-    const selectedDate = calendar.get('selectedDate');
-    const selectedWeek = format(startOfWeek(selectedDate, {weekStartsOn: weekStartsOn}), 'YYYY-MM-DD');
-    const indexOfSelectedWeek = weeks.indexOf(selectedWeek);
-
-    const weeksBefore = weeks.slice(0, indexOfSelectedWeek + 1); //Add one to include selected week
-    const weeksAfter = weeks.slice(-indexOfSelectedWeek);
-    */
-
-
-    //this._splitWeeksBySelected(weeks, selectedDate, weekStartsOn),
   
-  _splitWeeksBySelected = () => {
-    const {calendar} = this.props;
-
-    const weeks = calendar.get('weeks');
-    const selectedDate = calendar.get('selectedDate');
-    const weekStartsOn = calendar.get('weekStartsOn');
-
-    const selectedWeek = format(startOfWeek(selectedDate, {weekStartsOn: weekStartsOn}), 'YYYY-MM-DD');
-    const weeksBefore = weeks.filter(week => isBefore(week, selectedWeek) || isSameWeek(week, selectedWeek)); // add same week to list
-    const weeksAfter = weeks.filter(week => isAfter(week, selectedWeek));
-
-    return (
-      Map({
-        weeksBefore: weeksBefore,
-        weeksAfter: weeksAfter
-      }));
-  }
-
   _keyExtractor = (item, index) => item;
   _getItem = (items, index) => items.get(index);
   _getItemCount = (items) => (items.size || 0);
@@ -135,12 +103,12 @@ class CalendarView extends React.PureComponent {
 
   _onDatePress = (date) => {    
     const { calendar, selectDate } = this.props;
-    const weekStartsOn = calendar.get('weekStartsOn');
+    //const weekStartsOn = calendar.get('weekStartsOn');
 
-    const weeks = calendar.get('weeks');
-    const selectedWeek = format(startOfWeek(date, {weekStartsOn: weekStartsOn}), 'YYYY-MM-DD');
+    //const weeks = calendar.get('weeks');
+    //const selectedWeek = format(startOfWeek(date, {weekStartsOn: weekStartsOn}), 'YYYY-MM-DD');
 
-    const indexOfSelectedWeek = weeks.indexOf(selectedWeek);
+    //const indexOfSelectedWeek = weeks.indexOf(selectedWeek);
     
     selectDate(date);
   }
@@ -168,6 +136,7 @@ class CalendarView extends React.PureComponent {
   _onViewableItemsChanged = (event) => {
     console.log('_onViewableItemsChanged');
     const { renderQueue, monthsWithRenderedWeeks } = this.state;
+
     /*
     const viewableItems = event.viewableItems;
     const firstViewableMonth = viewableItems[0].item;
@@ -237,37 +206,27 @@ class CalendarView extends React.PureComponent {
   }
   */
 
- componentWillUpdate(nextProps, nextState) {
-   /*
-  const {calendar} = this.props;
-  const selectedDate = calendar.get('selectedDate');
-  if (selectedDate != nextProps.calendar.get('selectedDate')) {
-    console.log('selecteddate changed');
-    this.setState({splitWeeks: this._splitWeeksBySelected()});
-  }*/
- }
-
   componentDidUpdate(prevProps, prevState) {
-
     const { calendar } = this.props;
-    const { dayHeight, documentsInSelected, currentDocument, renderQueue, scrollIndex, scrollEnabled} = this.state;
-    
-    if (this.refList) {
-    const splitWeeks = this._splitWeeksBySelected(calendar.get('weeks'), calendar.get('selectedDate'), calendar.get('weekStartsOn'));
+    if (calendar.get('selectedDate') != prevProps.calendar.get('selectedDate')) {
+      const selectedWeek = format(startOfWeek(calendar.get('selectedDate'), {weekStartsOn: calendar.get('weekStartsOn')}), 'YYYY-MM-DD');
+      const itemIndex = calendar.get('weeks').indexOf(selectedWeek);
+      this.refList && this.refList.scrollToLocation({sectionIndex: 0, itemIndex: itemIndex, animated: true}); 
+    }
+  }
 
-    const scrollIndex = splitWeeks.get('weeksBefore').size - 1;
-    this.refList.scrollToLocation({sectionIndex: 0, itemIndex: scrollIndex, animated: true}); 
-    console.log('scroll!');
-  }
-  }
-  
   render() {
     const { calendar } = this.props;
     const { dayHeight, documentsInSelected, currentDocument, renderQueue, scrollIndex, scrollEnabled} = this.state;
+    
+    const selectedWeek = format(startOfWeek(calendar.get('selectedDate', {weekStartsOn: calendar.get('weekStartsOn')}), 'YYYY-MM-DD'));
+    
 
-    const splitWeeks = this._splitWeeksBySelected(calendar.get('weeks'), calendar.get('selectedDate'), calendar.get('weekStartsOn'));
-    //console.log('splitWeeks in render', splitWeeks);
-    console.log('render selected date', calendar.get('selectedDate'));
+    //console.warn('before', calendar.get('weeks').takeWhile(week => isBefore(week, selectedWeek) || isSameWeek(week, selectedWeek)));
+    //console.log('after',calendar.get('weeks').skipWhile(week => isBefore(week, selectedWeek) || isSameWeek(week, selectedWeek)));
+
+    /* USE SKIPUNTIL directly in data beneath INSTEAD OF SPLITWEEKSBYSELECTEDFUNCTION! */
+    /* https://facebook.github.io/immutable-js/docs/#/List/skipUntil */
 
     return (
       <View style={styles.container}>
@@ -280,9 +239,9 @@ class CalendarView extends React.PureComponent {
           sections={[
             {
               title: 'before',
-              data: splitWeeks.get('weeksBefore').toArray(),
+              data: calendar.get('weeks').takeWhile(week => isBefore(week, selectedWeek) || isSameWeek(week, selectedWeek)).toArray(),
               renderItem: this._renderItem,
-              extraData: this.state
+              //extraData: this.state
             },
             {
               title: 'current',
@@ -291,9 +250,9 @@ class CalendarView extends React.PureComponent {
             },
             {
               title: 'before',
-              data: splitWeeks.get('weeksAfter').toArray(),
+              data: calendar.get('weeks').skipWhile(week => isBefore(week, selectedWeek) || isSameWeek(week, selectedWeek)).toArray(),
               renderItem: this._renderItem,
-              extraData: this.state
+              //extraData: this.state
             },
           ]}
 
