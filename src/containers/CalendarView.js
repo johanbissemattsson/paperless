@@ -85,9 +85,11 @@ class CalendarView extends React.PureComponent {
 
   _renderSpacer = () => {
     const { dayHeight, spacerHeight} = this.state;
-
+    console.log('spacerHeight', spacerHeight);
     return (
-     <View style={[styles.spacer, {minHeight: spacerHeight}]} />
+     <View style={[styles.spacer, {minHeight: spacerHeight}]}>
+<Text>ejbgeajkgbejagbejb</Text>
+      </View>
     )
   }
 
@@ -209,9 +211,12 @@ class CalendarView extends React.PureComponent {
   componentDidUpdate(prevProps, prevState) {
     const { calendar } = this.props;
     if (calendar.get('selectedDate') != prevProps.calendar.get('selectedDate')) {
-      const selectedWeek = format(startOfWeek(calendar.get('selectedDate'), {weekStartsOn: calendar.get('weekStartsOn')}), 'YYYY-MM-DD');
-      const itemIndex = calendar.get('weeks').indexOf(selectedWeek);
-      this.refList && this.refList.scrollToLocation({sectionIndex: 0, itemIndex: itemIndex, animated: true}); 
+      //const selectedWeek = format(startOfWeek(calendar.get('selectedDate'), {weekStartsOn: calendar.get('weekStartsOn')}), 'YYYY-MM-DD');
+      //const itemIndex = calendar.get('weeks').indexOf(selectedWeek);
+
+      //weeks.findIndex(item => isSameWeek(item, (selectedDate),{weekStartsOn: weekStartsOn}));
+      this.refList && this.refList.scrollToLocation({sectionIndex: 0, itemIndex: calendar.get('weeks').findIndex(week => isSameWeek(week, calendar.get('selectedDate'),{weekStartsOn: calendar.get('weekStartsOn')}))})
+      //this.refList && this.refList.scrollToLocation({sectionIndex: 0, itemIndex: itemIndex, animated: true}); 
     }
   }
 
@@ -219,15 +224,9 @@ class CalendarView extends React.PureComponent {
     const { calendar } = this.props;
     const { dayHeight, documentsInSelected, currentDocument, renderQueue, scrollIndex, scrollEnabled} = this.state;
     
-    const selectedWeek = format(startOfWeek(calendar.get('selectedDate', {weekStartsOn: calendar.get('weekStartsOn')}), 'YYYY-MM-DD'));
-    
-
-    //console.warn('before', calendar.get('weeks').takeWhile(week => isBefore(week, selectedWeek) || isSameWeek(week, selectedWeek)));
-    //console.log('after',calendar.get('weeks').skipWhile(week => isBefore(week, selectedWeek) || isSameWeek(week, selectedWeek)));
-
-    /* USE SKIPUNTIL directly in data beneath INSTEAD OF SPLITWEEKSBYSELECTEDFUNCTION! */
-    /* https://facebook.github.io/immutable-js/docs/#/List/skipUntil */
-
+    const selectedWeek = startOfWeek(calendar.get('selectedDate'), {weekStartsOn: calendar.get('weekStartsOn')});
+    const formattedSelectedWeek = format(selectedWeek, 'YYYY-MM-DD');
+  
     return (
       <View style={styles.container}>
         <SectionList
@@ -239,7 +238,7 @@ class CalendarView extends React.PureComponent {
           sections={[
             {
               title: 'before',
-              data: calendar.get('weeks').takeWhile(week => isBefore(week, selectedWeek) || isSameWeek(week, selectedWeek)).toArray(),
+              data: calendar.get('weeks').takeUntil(week => isAfter(week, formattedSelectedWeek)).toArray(),
               renderItem: this._renderItem,
               //extraData: this.state
             },
@@ -249,8 +248,8 @@ class CalendarView extends React.PureComponent {
               renderItem: this._renderSpacer
             },
             {
-              title: 'before',
-              data: calendar.get('weeks').skipWhile(week => isBefore(week, selectedWeek) || isSameWeek(week, selectedWeek)).toArray(),
+              title: 'after',
+              data: calendar.get('weeks').skipUntil(week => isAfter(week, formattedSelectedWeek)).toArray(),
               renderItem: this._renderItem,
               //extraData: this.state
             },
