@@ -24,7 +24,7 @@ class DocumentsView extends React.Component {
     const dayWidth = windowWidth / 7;
     
     return (
-      <View style={[styles.container, {width: windowWidth, height: windowHeight - (dayWidth * 3) - (Constants.statusBarHeight * 2), top: dayWidth}]}>
+      <View style={[styles.container, {width: windowWidth, height: windowHeight - (dayWidth * 3) - (Constants.statusBarHeight * 2), top: Constants.statusBarHeight + dayWidth * 2}]}>
         <FlatList
           style={styles.list}
           contentContainerStyle={styles.listContentContainer}
