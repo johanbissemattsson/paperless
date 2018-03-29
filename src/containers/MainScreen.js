@@ -22,10 +22,15 @@ class MainScreen extends React.Component {
     title: 'Main Screen',
   };
 
+  /*
+    <DocumentsView />
+    <CalendarView />
+    <CameraView />
+  */
+ 
   render() {
     return (
       <View style={styles.container}>
-        <DocumentsView />
         <CalendarView />
         <CameraView />
       </View>
@@ -51,10 +56,3 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 });
-
-/*
-componentDidUpdate() {
-    const index = calendar.get('months').findIndex(item => item === format(calendar.get('goTo').date, 'YYYY-MM'));
-    this.refList.scrollToIndex({animated: true, viewPosition: 0.5, index: index});
-}
-  */

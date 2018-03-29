@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, SectionList, Dimensions, findNodeHandle, PixelRatio, Platform, NativeModules, LayoutAnimation } from 'react-native';
+import { StyleSheet, Text, View, SectionList, VirtualizedList, Dimensions, findNodeHandle, PixelRatio, Platform, NativeModules, LayoutAnimation } from 'react-native';
 import { Constants } from 'expo';
 import { connect } from 'react-redux';
 import { format, differenceInCalendarWeeks, eachDay, startOfMonth, endOfMonth, isSameWeek, addWeeks, isSameMonth, addMonths, startOfWeek, endOfWeek, isBefore, isAfter} from 'date-fns';
@@ -7,12 +7,12 @@ import { Map, List, Seq } from 'immutable';
 import { NavigationActions } from 'react-navigation';
 import sectionListGetItemLayout from 'react-native-section-list-get-item-layout'
 
-import CalendarListWeek from '../components/CalendarListWeek';
+import CalendarList from '../components/CalendarList';
 import DocumentsView from './DocumentsView';
 
 import { SELECT_DATE } from '../actionTypes';
 
-class CalendarView extends React.PureComponent {
+class CalendarView extends React.Component {
   constructor(props, context) {
     super(props, context);
 
@@ -20,76 +20,27 @@ class CalendarView extends React.PureComponent {
     const weeks = calendar.get('weeks');
     const selectedDate = calendar.get('selectedDate');
     const weekStartsOn = calendar.get('weekStartsOn');
-
+    
     this.state = {
-      scrollIndex: weeks.findIndex(item => isSameWeek(item, (selectedDate),{weekStartsOn: weekStartsOn})),
       dayHeight: PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 7),
       spacerHeight: PixelRatio.roundToNearestPixel(Dimensions.get('window').width),
-      onEndReachedCalledDuringMomentum: false,
-      viewableItems: new Array,
-      monthsWithRenderedWeeks: new List(),
-      renderQueue: new List(),
-      allViewableItemsRendered: false,
-      unrenderedRenderQueueItems: new List(),
-      isLoadingContent: true,
-      scrollEnabled: true,
+      sectionListChildrenRendered: 0,
+      isLoadingContent: true 
     };
   }
 
-  _disableCalendarViewScroll = () => {
-    console.log('disable');
-    this.setState({ scrollEnabled: false });
-  }
-
-  _enableCalendarViewScroll = () => {
-    console.log('enable');
-    this.setState({ scrollEnabled: true });
-  }  
-
   _onDatePress = (date) => {    
-    const { calendar, selectDate } = this.props;   
-    selectDate(date);
+    this.props.selectDate(date);
+    this.refSectionList.scrollToLocation({sectionIndex: 1, itemIndex: 0, animated: true, viewOffset: this.state.dayHeight});
   }
 
-  _updateActiveCalendarListWeek = (refCalendarListWeek) => {
-    if (refCalendarListWeek) {
-      this.setState({activeCalendarListWeek: refCalendarListWeek});
-    } 
-  }
-
-  _onMomentumScrollBegin = () => {
-    this.setState({onEndReachedCalledDuringMomentum: false}); // prevent onEndReached to be triggered twice
-  }
-
-  _onEndReached = () => {
-    const { addWeeksAfter } = this.props;
-    const { onEndReachedCalledDuringMomentum } = this.state;
-    if (!onEndReachedCalledDuringMomentum) {
-      this.setState({onEndReachedCalledDuringMomentum: true});
-      addWeeksAfter();      
-      console.log('onEndReachedCalledDuringMomentum');
+  _onCalendarEndReached = (isBefore) => {
+    if (!isBefore) {
+      console.log('_onCalendarEndReached before:', isBefore);
+      this.props.addWeeksAfter();
     }
   }
-
-  _handleContentSizeChange = () => {
-    const {isLoadingContent, scrollIndex} = this.state;
-
-    if (isLoadingContent) {
-      console.log('scrollToIndex', scrollIndex);
-      this.setState({isLoadingContent: false});
-      this.refList.scrollToLocation({sectionIndex: 0, itemIndex: scrollIndex, animated: false}); // remeber that header also pushes down
-    }
-  }
-
-  /*componentDidMount() {
-    if (Platform.OS === 'android') {
-      const { UIManager } = NativeModules;
-      UIManager.setLayoutAnimationEnabledExperimental &&
-        UIManager.setLayoutAnimationEnabledExperimental(true);
-    }
-  }
-  */  
-  
+    
   _keyExtractor = (item, index) => item;
   _getItem = (items, index) => items.get(index);
   _getItemCount = (items) => (items.size || 0);
@@ -97,92 +48,91 @@ class CalendarView extends React.PureComponent {
   _getItemLayout = sectionListGetItemLayout({
     // The height of the row with rowData at the given sectionIndex and rowIndex
     getItemHeight: (rowData, sectionIndex, rowIndex) => {
-      const { dayHeight, spacerHeight} = this.state;
       if (sectionIndex === 1) {
-        return spacerHeight;
+        return this.state.spacerHeight;
       } else {
-        return dayHeight;
+        return rowData.weeks.size * this.state.dayHeight;
       }
     },
   })
   
-  _renderItem = ({item}) => {
-    const { calendar } = this.props;
-    const { dayHeight, viewableItems, documentsInSelected, currentDocument, monthsWithRenderedWeeks, renderQueue, currentItemInRenderQueue, allViewableItemsRendered } = this.state;
-    const selectedDate = calendar.get('selectedDate');
-    const weekStartsOn = calendar.get('weekStartsOn');
-    const isActiveWeek = isSameWeek(format(selectedDate, 'YYYY-MM-DD'), item, {weekStartsOn: weekStartsOn});
+  _renderListBefore = ({item, index}) => {
+    const {dayHeight} = this.state;
+    return (
+      <CalendarList before weeks={item.weeks} dayHeight={dayHeight} onDatePress={this._onDatePress} onCalendarEndReached={this._onCalendarEndReached} />
+    );
+  }  
 
-   return (
-      <CalendarListWeek
-        id={item}
-        days={
-          List((eachDay(startOfWeek(item, {weekStartsOn: weekStartsOn}),endOfWeek(item, {weekStartsOn: weekStartsOn}))).map((day) => (format(day, 'YYYY-MM-DD'))))
-        }
-        selectedDate={selectedDate}
-        onDatePress={this._onDatePress}
-        dayHeight={dayHeight}
-        weekStartsOn={weekStartsOn}
-        //shouldRenderWeeks={shouldRenderWeeks}
-      />
-    )
+  _renderListAfter = ({item, index}) => {
+    const {dayHeight} = this.state;
+    
+    return (
+      <CalendarList after weeks={item.weeks} dayHeight={dayHeight} onDatePress={this._onDatePress} onCalendarEndReached={this._onCalendarEndReached} />
+    );
   }
 
-  _renderSpacer = () => {
+  _renderDocuments = () => {
     const { dayHeight, spacerHeight} = this.state;
-    console.log('spacerHeight', spacerHeight);
+    
     return (
-     <View style={[styles.spacer, {minHeight: spacerHeight}]}>
-<Text>ejbgeajkgbejagbejb</Text>
+      <View style={[styles.spacer, {minHeight: spacerHeight}]}>
+        <Text>ejbgeajkgbejagbejb</Text>
       </View>
     )
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    const { calendar } = this.props;
-    if (calendar.get('selectedDate') != prevProps.calendar.get('selectedDate')) {
-      this.refList && this.refList.scrollToLocation({sectionIndex: 0, itemIndex: calendar.get('weeks').findIndex(week => isSameWeek(week, calendar.get('selectedDate'),{weekStartsOn: calendar.get('weekStartsOn')}))})
+
+  _onScroll = ({nativeEvent}) => {
+    if (nativeEvent.contentOffset.y === 0) {
+      console.log('0!!');
     }
   }
 
+  _handleContentSizeChange = () => {
+    console.log('_handleContentSizeChange');
+    if (this.state.isLoadingContent) {
+      console.log('aj');
+      this.setState({isLoadingContent: false});
+      this.refSectionList.scrollToLocation({sectionIndex: 1, itemIndex: 0, animated: true, viewOffset: this.state.dayHeight});
+    }
+  }
+
+  /*
+  * Render SectionList
+  */
   render() {
     const { calendar } = this.props;
-    const { dayHeight, documentsInSelected, currentDocument, renderQueue, scrollIndex, scrollEnabled} = this.state;
-    
-    const selectedWeek = startOfWeek(calendar.get('selectedDate'), {weekStartsOn: calendar.get('weekStartsOn')});
-    const formattedSelectedWeek = format(selectedWeek, 'YYYY-MM-DD');
-  
+    const { dayHeight } = this.state;
+
     return (
       <View style={styles.container}>
         <SectionList
-          ref={node => this.refList = node}
+          ref={node => this.refSectionList = node}
           style={styles.list}
           contentContainerStyle={styles.listContentContainer}
           sections={[
             {
-              title: 'before',
-              data: calendar.get('weeks').takeUntil(week => isAfter(week, formattedSelectedWeek)).toArray(),
-              renderItem: this._renderItem,
+              data: [{weeks: calendar.get('weeks').filter((week) => (week.get('isBeforeSelectedWeek') || week.get('isSelectedWeek')))}], // Pass data to nested Flat lists - modified from https://github.com/facebook/react-native/issues/13192#issuecomment-306311168
+              renderItem: this._renderListBefore,
             },
             {
-              title: 'current',
               data: [{key: 'a'}],
-              renderItem: this._renderSpacer
+              renderItem: this._renderDocuments
             },
             {
-              title: 'after',
-              data: calendar.get('weeks').skipUntil(week => isAfter(week, formattedSelectedWeek)).toArray(),
-              renderItem: this._renderItem,
+              data: [{weeks: calendar.get('weeks').filter((week) => (week.get('isAfterSelectedWeek')))}], // Pass data to nested Flat lists - modified from https://github.com/facebook/react-native/issues/13192#issuecomment-306311168
+              renderItem: this._renderListAfter,
             },
           ]}
           getItem={this._getItem}
+          extraData={this.state}
           getItemCount={this._getItemCount}
           getItemLayout={this._getItemLayout}
           keyExtractor={this._keyExtractor}
-          initialScrollIndex={scrollIndex} // maybe subtract 1 due to https://github.com/facebook/react-native/issues/13202
-          onEndReached={this._onEndReached}
-          onMomentumScrollBegin={this._onMomentumScrollBegin}
-          onContentSizeChange={this._handleContentSizeChange}
+          onScroll={this._onScroll}
+          scrollEventThrottle={0}
+          nestedScrollEnabled={true} // https://github.com/facebook/react-native/pull/18299 Hopefully next React Native version will resolve this...
+          //debug={true} 
         />
       </View>
     );
@@ -205,20 +155,14 @@ export default connect(mapStateToProps, mapDispatchToProps)(CalendarView);
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
     alignSelf: 'stretch'
   },
   list: {
-    flex: 1,
-    alignSelf: 'stretch',
   },
   listContentContainer: {
-
+    //flexGrow: 1
   },
   spacer: {
-    alignSelf: 'stretch',
-    flexDirection: 'column',
-    backgroundColor: 'rgba(0, 255, 0, 0.25)',
+
   },
 });
