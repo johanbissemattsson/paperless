@@ -1,7 +1,13 @@
+/* https://reactnavigation.org/docs/redux-integration.html */
+/* Read above and adjust to new version - Probably best to redo AppNavigator and nav reducer from scratch */
+
+
+
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { addNavigationHelpers, StackNavigator, NavigationActions } from 'react-navigation';
+import { createReduxBoundAddListener, createReactNavigationReduxMiddleware } from 'react-navigation-redux-helpers';
 import { BackHandler } from 'react-native';
 import { Constants } from 'expo';
 
@@ -46,6 +52,14 @@ const StackNavigatorConfig = {
 
 export const AppNavigator = StackNavigator(routeConfigs, StackNavigatorConfig);
 
+// Note: createReactNavigationReduxMiddleware must be run before createReduxBoundAddListener
+export const navMiddleware = createReactNavigationReduxMiddleware(
+  "root",
+  state => state.nav,
+);
+
+const addListener = createReduxBoundAddListener("root");
+
 class AppWithNavigationState extends React.Component {
     componentDidMount() {
       BackHandler.addEventListener("hardwareBackPress", this.onBackPress);
@@ -66,7 +80,7 @@ class AppWithNavigationState extends React.Component {
 
     render() {
       const { dispatch, nav } = this.props;
-      const navigation = addNavigationHelpers({ dispatch, state: nav });
+      const navigation = addNavigationHelpers({ dispatch, state: nav, addListener });
       
       return (
         <AppNavigator navigation={navigation} />

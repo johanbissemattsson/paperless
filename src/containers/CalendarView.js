@@ -7,7 +7,7 @@ import { Map, List, Seq } from 'immutable';
 import { NavigationActions } from 'react-navigation';
 import sectionListGetItemLayout from 'react-native-section-list-get-item-layout'
 
-import CalendarList from '../components/CalendarList';
+import CalendarListWeek from '../components/CalendarListWeek';
 import DocumentsView from './DocumentsView';
 
 import { SELECT_DATE } from '../actionTypes';
@@ -33,15 +33,8 @@ class CalendarView extends React.Component {
     this.props.selectDate(date);
     this.refSectionList.scrollToLocation({sectionIndex: 1, itemIndex: 0, animated: true, viewOffset: this.state.dayHeight});
   }
-
-  _onCalendarEndReached = (isBefore) => {
-    if (!isBefore) {
-      console.log('_onCalendarEndReached before:', isBefore);
-      this.props.addWeeksAfter();
-    }
-  }
     
-  _keyExtractor = (item, index) => item;
+  _keyExtractor = (item, index) => index;
   _getItem = (items, index) => items.get(index);
   _getItemCount = (items) => (items.size || 0);
   
@@ -51,24 +44,25 @@ class CalendarView extends React.Component {
       if (sectionIndex === 1) {
         return this.state.spacerHeight;
       } else {
-        return rowData.weeks.size * this.state.dayHeight;
+        return this.state.dayHeight;
       }
     },
   })
   
-  _renderListBefore = ({item, index}) => {
-    const {dayHeight} = this.state;
+  _renderItem = ({item, index}) => {
     return (
-      <CalendarList before weeks={item.weeks} dayHeight={dayHeight} onDatePress={this._onDatePress} onCalendarEndReached={this._onCalendarEndReached} />
+      <CalendarListWeek week={item} height={this.state.dayHeight} onDatePress={this._onDatePress}/>
     );
-  }  
+  }
 
-  _renderListAfter = ({item, index}) => {
-    const {dayHeight} = this.state;
-    
-    return (
-      <CalendarList after weeks={item.weeks} dayHeight={dayHeight} onDatePress={this._onDatePress} onCalendarEndReached={this._onCalendarEndReached} />
-    );
+  _onEndReached = () => {
+    console.log('_onCalendarEndReached');
+    //this.props.addWeeksAfter();
+  }
+
+  _onViewableItemsChanged = (viewableItems, changed) => {
+    console.log('onViewableItemsChanged');
+    //console.log('onViewableItemsChanged', viewableItems);
   }
 
   _renderDocuments = () => {
@@ -81,60 +75,45 @@ class CalendarView extends React.Component {
     )
   }
 
-
-  _onScroll = ({nativeEvent}) => {
-    if (nativeEvent.contentOffset.y === 0) {
-      console.log('0!!');
-    }
-  }
-
-  _handleContentSizeChange = () => {
-    console.log('_handleContentSizeChange');
-    if (this.state.isLoadingContent) {
-      console.log('aj');
-      this.setState({isLoadingContent: false});
-      this.refSectionList.scrollToLocation({sectionIndex: 1, itemIndex: 0, animated: true, viewOffset: this.state.dayHeight});
-    }
-  }
-
   /*
   * Render SectionList
   */
+ 
   render() {
     const { calendar } = this.props;
     const { dayHeight } = this.state;
-
     return (
-      <View style={styles.container}>
-        <SectionList
-          ref={node => this.refSectionList = node}
-          style={styles.list}
-          contentContainerStyle={styles.listContentContainer}
-          sections={[
+        <View style={styles.container}>
+          <SectionList
+            ref={node => this.refSectionList = node}
+            style={styles.list}
+            contentContainerStyle={styles.listContentContainer}
+            sections={[
             {
-              data: [{weeks: calendar.get('weeks').filter((week) => (week.get('isBeforeSelectedWeek') || week.get('isSelectedWeek')))}], // Pass data to nested Flat lists - modified from https://github.com/facebook/react-native/issues/13192#issuecomment-306311168
-              renderItem: this._renderListBefore,
+              data: calendar.get('weeks').filter((week) => (week.get('isBeforeSelectedWeek') || week.get('isSelectedWeek'))).toArray(),
+              renderItem: this._renderItem,
             },
             {
               data: [{key: 'a'}],
               renderItem: this._renderDocuments
             },
             {
-              data: [{weeks: calendar.get('weeks').filter((week) => (week.get('isAfterSelectedWeek')))}], // Pass data to nested Flat lists - modified from https://github.com/facebook/react-native/issues/13192#issuecomment-306311168
-              renderItem: this._renderListAfter,
-            },
+              data: calendar.get('weeks').filter((week) => (week.get('isAfterSelectedWeek'))).toArray(),
+              renderItem: this._renderItem,
+            },            
           ]}
-          getItem={this._getItem}
-          extraData={this.state}
-          getItemCount={this._getItemCount}
-          getItemLayout={this._getItemLayout}
-          keyExtractor={this._keyExtractor}
-          onScroll={this._onScroll}
-          scrollEventThrottle={0}
-          nestedScrollEnabled={true} // https://github.com/facebook/react-native/pull/18299 Hopefully next React Native version will resolve this...
-          //debug={true} 
-        />
-      </View>
+            getItem={this._getItem}
+            //extraData={this.state}
+            getItemCount={this._getItemCount}
+            getItemLayout={this._getItemLayout}
+            keyExtractor={this._keyExtractor}
+            onEndReached={this._onEndReached}
+            onViewableItemsChanged={this._onViewableItemsChanged}
+            //onScroll={this._onScroll}
+            //nestedScrollEnabled={true} // https://github.com/facebook/react-native/pull/18299 Hopefully next React Native version will resolve this...
+            //debug={true} 
+          />
+        </View>
     );
   }
 }

@@ -6,9 +6,10 @@ import { List, Map } from 'immutable';
 
 import CalendarListDay from './CalendarListDay';
 
-export default class CalendarListWeek extends React.Component {
+export default class CalendarListWeek extends React.PureComponent {
   render() {
     const { week, height, onDatePress } = this.props;
+    //console.warn(week);
     return (
       <View style={[styles.container, {minHeight: height}]}>
         {week.get('days').map((day, dayIndex) => 

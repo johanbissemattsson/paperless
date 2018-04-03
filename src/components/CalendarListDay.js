@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { StyleSheet, Text, View, TouchableNativeFeedback, Platform} from 'react-native';
 import { format } from 'date-fns';
 
-export default class CalenderListDay extends React.Component {
+export default class CalenderListDay extends React.PureComponent {
 
   _onPress = (date) => {this.props.onDatePress(date);} // consider using context instead due to performance? Notably faster just to use console log here instead of onDatePress(date)
 

@@ -7,11 +7,12 @@ import { createLogger } from 'redux-logger';
 import appReducer from './src/reducers';
 import appSaga from './src/sagas';
 import AppWithNavigationState from './src/navigators/AppNavigator';
+import {navMiddleware} from './src/navigators/AppNavigator';
 
 export default class App extends React.Component {
   render() {
     const sagaMiddleware = createSagaMiddleware();
-    const middlewares = [sagaMiddleware];
+    const middlewares = [sagaMiddleware, navMiddleware];
     
     if (process.env.NODE_ENV === 'development') {
       const logger = createLogger({colors: 'none'});

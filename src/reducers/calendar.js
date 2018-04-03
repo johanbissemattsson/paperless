@@ -4,8 +4,8 @@ import { format, startOfWeek, endOfWeek, addWeeks, subWeeks, isEqual, isBefore, 
 import { SELECT_DATE } from '../actionTypes';
 
 const initialDate = new Date();
-const initialWeeksBeforeAndAfter = 26; // amount of weeks to initialize before and after the initial date 
-const amountOfWeeksToAdd = 26;
+const initialWeeksBeforeAndAfter = 100; // amount of weeks to initialize before and after the initial date 
+const amountOfWeeksToAdd = 2;
 const weekStartsOn = 1; // 1 = Monday (start of week)
 
 const _formatDate = (date) => {
