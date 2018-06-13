@@ -9,6 +9,7 @@ export default class CalenderListDay extends React.PureComponent {
 
   render() {
     const { day, partOfSelectedWeek, height } = this.props;
+
     const selected = day.get('selected');
     const date = day.get('date');
 

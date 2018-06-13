@@ -1,10 +1,10 @@
 import { List, Map, Seq } from 'immutable';
-import { format, startOfWeek, endOfWeek, addWeeks, subWeeks, isEqual, isBefore, isAfter, eachDay, startOfDay } from 'date-fns';
+import { format, startOfWeek, endOfWeek, addWeeks, subWeeks, isEqual, isBefore, isAfter, eachDay, startOfDay, isSameWeek, isSameDay } from 'date-fns';
 
 import { SELECT_DATE } from '../actionTypes';
 
 const initialDate = new Date();
-const initialWeeksBeforeAndAfter = 100; // amount of weeks to initialize before and after the initial date 
+const initialWeeksBeforeAndAfter = 10; // amount of weeks to initialize before and after the initial date 
 const amountOfWeeksToAdd = 2;
 const weekStartsOn = 1; // 1 = Monday (start of week)
 
@@ -13,12 +13,20 @@ const _formatDate = (date) => {
 }
 
 const _initWeek = (date, selectedDate) => {
-  const days = List(eachDay(date, endOfWeek(date, {weekStartsOn: 1})).map((day) => Map({date: day, selected: isEqual(day, selectedDate)})));
+  const days = List(eachDay(date, endOfWeek(date, {weekStartsOn: weekStartsOn})).map((day) => Map({date: day, selected: isSameDay(day, selectedDate)})));
   return (
-    new Map({days: days, isSelectedWeek: isEqual(date, selectedDate), isBeforeSelectedWeek: isBefore(date, selectedDate), isAfterSelectedWeek: isAfter(date, selectedDate)})
+    new Map({days: days, isSelectedWeek: isSameWeek(date, selectedDate, {weekStartsOn: weekStartsOn}), isBeforeSelectedWeek: isBefore(date, selectedDate), isAfterSelectedWeek: isAfter(date, selectedDate)})
   );
 }
 
+const _reinitWeeksInList = (selectedDate, firstDateInList, numberOfWeeksInList) => {
+  const newWeeks = List(new Array(numberOfWeeksInList))
+      .map((_,w) => {
+        const startOfW = addWeeks(firstDateInList, w);
+        return _initWeek(startOfW, selectedDate);
+      });
+  return(newWeeks);
+}
 const _initWeeksInList = (date) => {
   const startOfInitialWeek = startOfWeek(date, {weekStartsOn: weekStartsOn});
   const endOfInitialWeek = endOfWeek(date, {weekStartsOn: weekStartsOn});
@@ -45,7 +53,14 @@ const initialState = Map({
 export default calendar = (state = initialState, action) => {
   switch (action.type) {
     case SELECT_DATE:
-      return state.set('selectedDate', action.date); //remeber to reinit/update weeks
+    const firstDateInList = state.get('weeks').first().get('days').first().get('date');
+    const numberOfWeeksInList = state.get('weeks').size;
+
+      const reinitializedCalendar = Map({
+        weeks: _reinitWeeksInList(action.date, firstDateInList, numberOfWeeksInList),
+        selectedDate: action.date,
+      })    
+      return state.mergeDeep(reinitializedCalendar);
     case 'addWeeksBefore':
       console.log('addWeeksBefore');
       return state;
@@ -56,7 +71,7 @@ export default calendar = (state = initialState, action) => {
       return state.update('weeks', list => {
         const updatedWeeksList = list.withMutations((listWithMutations) => {
           for (let a = 1; a <= amountOfWeeksToAdd; a++) {
-            listWithMutations.push(_initWeek(addWeeks(lastWeekInList, a), selectedDate));           
+            listWithMutations.push(_initWeek(addWeeks(lastWeekInList, a), selectedDate));
           }
         });
         return updatedWeeksList;
@@ -65,3 +80,28 @@ export default calendar = (state = initialState, action) => {
       return state;
   }
 }
+
+
+      /*
+      console.warn('selectedDate in reducer', action.date);
+      const oldSelectedWeekIndex = state.get('weeks').findIndex((weekItem) => weekItem.get('isSelectedWeek'));
+      console.log(oldSelectedWeekIndex);
+      console.log(state.get('weeks').get(oldSelectedWeekIndex).get('days').first().get('date'));
+      console.warn(isSameWeek(action.date, state.get('weeks').get(oldSelectedWeekIndex).get('days').first().get('date'), {weekStartsOn: weekStartsOn}));
+
+      const isSameWeekAsOldSelected = isSameWeek(action.date, state.get('weeks').get(oldSelectedWeekIndex).get('days').first().get('date'), {weekStartsOn: weekStartsOn});
+
+      if (isSameWeekAsOldSelected) {
+        console.log('sameweek so update just this week');
+        const reinitializedWeek = _initWeek(startOfWeek(action.date, {weekStartsOn: weekStartsOn}), action.date);
+        console.log(reinitializedWeek);
+        return state.set('selectedDate', action.date).setIn(['weeks', oldSelectedWeekIndex], reinitializedWeek);
+      } else {
+        console.log('not same week so update both old week and new one');
+        const newSelectedWeekIndex = state.get('weeks').findIndex((weekItem) => isSameWeek(action.date, weekItem.get('days').first().get('date'), {weekStartsOn: weekStartsOn}));
+        const oldReinitializedWeek = _initWeek(startOfWeek(state.get('weeks').get(oldSelectedWeekIndex).get('days').first().get('date'), {weekStartsOn: weekStartsOn}), action.date);
+        const newReinitializedWeek = _initWeek(startOfWeek(action.date, {weekStartsOn: weekStartsOn}), action.date);
+
+        return state.set('selectedDate', action.date).setIn(['weeks', newSelectedWeekIndex], newReinitializedWeek).setIn(['weeks', oldSelectedWeekIndex], oldReinitializedWeek);
+      };
+      */

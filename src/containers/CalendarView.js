@@ -61,7 +61,7 @@ class CalendarView extends React.Component {
   }
 
   _onViewableItemsChanged = (viewableItems, changed) => {
-    console.log('onViewableItemsChanged');
+    //console.log('onViewableItemsChanged');
     //console.log('onViewableItemsChanged', viewableItems);
   }
 
@@ -100,7 +100,7 @@ class CalendarView extends React.Component {
             {
               data: calendar.get('weeks').filter((week) => (week.get('isAfterSelectedWeek'))).toArray(),
               renderItem: this._renderItem,
-            },            
+            },
           ]}
             getItem={this._getItem}
             //extraData={this.state}
