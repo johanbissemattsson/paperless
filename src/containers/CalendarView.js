@@ -55,6 +55,7 @@ class CalendarView extends React.Component {
   })
   
   _renderItem = ({item, index}) => {
+    console.warn('Render section');
     return (
       <CalendarListWeek week={item} height={this.state.dayHeight} onDatePress={this._onDatePress}/>
     );

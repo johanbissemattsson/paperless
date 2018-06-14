@@ -19,14 +19,13 @@ const _initWeek = (date, selectedDate) => {
   );
 }
 
-const _reinitWeeksInList = (selectedDate, firstDateInList, numberOfWeeksInList) => {
-  const newWeeks = List(new Array(numberOfWeeksInList))
-      .map((_,w) => {
-        const startOfW = addWeeks(firstDateInList, w);
-        return _initWeek(startOfW, selectedDate);
-      });
-  return(newWeeks);
-}
+const _reinitWeeksInList = (selectedDate, firstDateInList, numberOfWeeksInList) => 
+  List(new Array(numberOfWeeksInList))
+  .map((_,w) => {
+    const startOfW = addWeeks(firstDateInList, w);
+    return _initWeek(startOfW, selectedDate);
+});
+
 const _initWeeksInList = (date) => {
   const startOfInitialWeek = startOfWeek(date, {weekStartsOn: weekStartsOn});
   const endOfInitialWeek = endOfWeek(date, {weekStartsOn: weekStartsOn});
