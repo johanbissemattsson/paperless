@@ -29,11 +29,16 @@ class CalendarView extends React.Component {
     };
   }
 
-  _onDatePress = (date) => {    
+  _onDatePress = (date) => {
+    const { calendar } = this.props;
+    const oldSelectedWeekIndex = calendar.get('weeks').findIndex((weekItem) => weekItem.get('isSelectedWeek'));
+    const pressedSelectedWeekIndex = calendar.get('weeks').findIndex((weekItem) => isSameWeek(date, weekItem.get('days').first().get('date'), {weekStartsOn: calendar.get('weekStartsOn')}));
+    const weekDiff = pressedSelectedWeekIndex - oldSelectedWeekIndex;
+
     this.props.selectDate(date);
-    this.refSectionList.scrollToLocation({sectionIndex: 1, itemIndex: 0, animated: true, viewOffset: this.state.dayHeight});
+    this.refSectionList.scrollToLocation({sectionIndex: 1, itemIndex: 0, animated: true, viewOffset: this.state.dayHeight - this.state.dayHeight * weekDiff});
   }
-    
+
   _keyExtractor = (item, index) => index;
   _getItem = (items, index) => items.get(index);
   _getItemCount = (items) => (items.size || 0);

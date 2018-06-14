@@ -4,7 +4,7 @@ import { format, startOfWeek, endOfWeek, addWeeks, subWeeks, isEqual, isBefore, 
 import { SELECT_DATE } from '../actionTypes';
 
 const initialDate = new Date();
-const initialWeeksBeforeAndAfter = 10; // amount of weeks to initialize before and after the initial date 
+const initialWeeksBeforeAndAfter = 20; // amount of weeks to initialize before and after the initial date 
 const amountOfWeeksToAdd = 2;
 const weekStartsOn = 1; // 1 = Monday (start of week)
 
@@ -60,7 +60,7 @@ export default calendar = (state = initialState, action) => {
         weeks: _reinitWeeksInList(action.date, firstDateInList, numberOfWeeksInList),
         selectedDate: action.date,
       })    
-      return state.mergeDeep(reinitializedCalendar);
+      return state.merge(reinitializedCalendar);
     case 'addWeeksBefore':
       console.log('addWeeksBefore');
       return state;
@@ -80,7 +80,6 @@ export default calendar = (state = initialState, action) => {
       return state;
   }
 }
-
 
       /*
       console.warn('selectedDate in reducer', action.date);
