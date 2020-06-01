@@ -21,7 +21,7 @@
   "dependencies": {
     "date-fns": "^1.29.0",
     "expo": "^25.0.0",
-    "frisbee": "^1.6.1",
+    "frisbee": "^3.1.3",
     "immutable": "^3.8.2",
     "react": "16.2.0",
     "react-native": "https://github.com/expo/react-native/archive/sdk-25.0.0.tar.gz",
