@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "date-fns": "^1.29.0",
-    "expo": "^25.0.0",
+    "expo": "^39.0.5",
     "frisbee": "^1.6.1",
     "immutable": "^3.8.2",
     "react": "16.2.0",
