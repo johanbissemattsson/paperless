@@ -1,0 +1,21 @@
+version: 2
+updates:
+- package-ecosystem: npm
+  directory: "/"
+  schedule:
+    interval: monthly
+    time: "02:00"
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: expo
+    versions:
+    - 40.0.0
+  - dependency-name: react-navigation
+    versions:
+    - 4.4.3
+  - dependency-name: moment
+    versions:
+    - 2.27.0
+  - dependency-name: decompress-zip
+    versions:
+    - 0.3.2
